@@ -1,0 +1,93 @@
+body {
+  width: 320px;
+  padding: 10px;
+  font-family: Arial, sans-serif;
+}
+.hidden {
+  display: none;
+}
+#menu {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 15px;
+}
+.tab-button {
+  padding: 5px 10px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.tab-button:hover {
+  background-color: #0056b3;
+}
+.content {
+  padding: 10px;
+}
+input, button, select, textarea {
+  width: calc(100% - 12px);
+  padding: 5px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+button {
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #218838;
+}
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 3px 6px;
+  font-size: 12px;
+  margin-left: 5px;
+}
+.data-item {
+  border-bottom: 1px solid #ccc;
+  padding: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.info-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  text-align: center;
+  font-size: 12px;
+  line-height: 16px;
+  cursor: pointer;
+  margin-left: 5px;
+}
+.tooltip {
+  display: none;
+  position: absolute;
+  background-color: #333;
+  color: white;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  width: 250px;
+  z-index: 1000;
+}
+.info-icon:hover + .tooltip {
+  display: block;
+}
+.history-controls {
+  margin-bottom: 10px;
+}
+.history-controls button {
+  margin-right: 5px;
+}

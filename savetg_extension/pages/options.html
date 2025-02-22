@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Extension Settings</title>
+    <link rel="stylesheet" type="text/css" href="options.css">
+</head>
+<body>
+<!-- Navigation menu -->
+<div id="menu">
+    <button class="tab-button" id="openSettings">Chats</button>
+    <button class="tab-button" id="openFAQ">FAQ</button>
+    <button class="tab-button" id="openButtonPosition">Button Position</button>
+    <button class="tab-button" id="openData">Data</button>
+    <!-- New button for History -->
+    <button class="tab-button" id="openHistory">History</button>
+</div>
+
+<!-- Settings page (Chats) -->
+<div id="settingsPage" class="content">
+    <h3>Manage Chats</h3>
+    <label for="chat_id">Chat ID:</label>
+    <input type="text" id="chat_id" placeholder="Enter Chat ID">
+    <label for="chat_name">Chat Name:</label>
+    <input type="text" id="chat_name" placeholder="Enter Chat Name">
+    <button id="saveChat">Save</button>
+
+    <h4>Manage JSON</h4>
+    <button id="toggleJsonBlock">Import / Export JSON</button>
+    <div id="jsonBlock" class="hidden">
+        <select id="jsonMode">
+            <option value="import">Import JSON</option>
+            <option value="export">Export JSON</option>
+        </select>
+        <textarea id="jsonTextarea" rows="5" placeholder='Paste JSON here...'></textarea>
+        <button id="processJson">Execute</button>
+    </div>
+
+    <h4>Saved Chats</h4>
+    <div id="chatList"></div>
+</div>
+
+<!-- FAQ page -->
+<div id="faqPage" class="content hidden">
+    <h3>How to Add a Chat?</h3>
+    <h4>Adding a Personal Chat (Yourself)</h4>
+    <p>1. Open <a href="https://t.me/mista_save_tg_bot" target="_blank">the bot</a>.</p>
+    <p>2. Press <strong>Start</strong> in Telegram.</p>
+    <p>3. Copy your <strong>Chat ID</strong> (sent by the bot).</p>
+    <p>4. Enter this Chat ID and a name in the "Chats" section, then press <strong>Save</strong>.</p>
+    <p>5. Now, you can send media to yourself.</p>
+    <h4>Adding a Group</h4>
+    <p>1. Open your <strong>Telegram Group</strong>.</p>
+    <p>2. Add <a href="https://t.me/mista_save_tg_bot" target="_blank">the bot</a> as a member.</p>
+    <p>3. Make the bot <strong>admin</strong> (optional but recommended).</p>
+    <p>4. Type <strong>/get_id</strong> или <strong>/get_meta</strong> в групповом чате.</p>
+    <p>5. Copy the Group ID (starts with <code>-100</code>).</p>
+    <p>6. Enter this Group ID and a name in the "Chats" section, then press <strong>Save</strong>.</p>
+    <h4>Adding a Channel</h4>
+    <p>1. Open your <strong>Telegram Channel</strong>.</p>
+    <p>2. Add <a href="https://t.me/mista_save_tg_bot" target="_blank">the bot</a> as an <strong>admin</strong>.</p>
+    <p>3. Type <strong>/get_id</strong> или <strong>/get_meta</strong> in the channel (or check the Info section).</p>
+    <p>4. Copy the Channel ID (starts with <code>-100</code>).</p>
+    <p>5. Enter this Channel ID and a name in the "Chats" section, then press <strong>Save</strong>.</p>
+    <p><strong>Note:</strong> The bot must be added to the group/channel before it can receive media.</p>
+  </div>
+
+<!-- Button position settings page -->
+<div id="buttonPositionPage" class="content hidden">
+    <h3>Button Position</h3>
+    <p>Select the desired position for the "Save" button relative to media:</p>
+    <select id="buttonPositionSelect">
+        <option value="top-left">Top Left</option>
+        <option value="top-center">Top Center</option>
+        <option value="top-right">Top Right</option>
+        <option value="center-left">Center Left</option>
+        <option value="center">Center</option>
+        <option value="center-right">Center Right</option>
+        <option value="bottom-left">Bottom Left</option>
+        <option value="bottom-center">Bottom Center</option>
+        <option value="bottom-right">Bottom Right</option>
+    </select>
+    <button id="saveButtonPosition">Save Position</button>
+</div>
+
+<!-- Stored Data page -->
+<div id="dataPage" class="content hidden">
+    <h3>Stored Data</h3>
+    <div id="dataList"></div>
+    <button id="clearData">Clear All Data</button>
+</div>
+
+<!-- History page -->
+<div id="historyPage" class="content hidden">
+    <h3>Teleport History</h3>
+    <div class="history-controls">
+        <button id="clearHistoryBtn">Clear History</button>
+        <!-- New button to toggle history saving -->
+        <button id="saveHistoryBtn">Save History</button>
+    </div>
+    <div id="historyList"></div>
+</div>
+
+<script src="options.js"></script>
+</body>
+</html>

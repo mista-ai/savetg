@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Enter message</title>
+    <style>
+        textarea { width: 100%; height: 150px; }
+        button { margin: 5px; }
+    </style>
+</head>
+<body>
+    <h3>Enter your message</h3>
+    <textarea id="msgText"></textarea>
+    <br>
+    <button id="boldBtn">Bold</button>
+    <button id="italicBtn">Italic</button>
+    <button id="codeBtn">Code</button>
+    <button id="strikeBtn">Strikethrough</button>
+    <br>
+    <button id="sendBtn">Send</button>
+
+    <script>
+    // On page load, extract mediaUrl and chatId from query parameters
+    const params = new URLSearchParams(window.location.search);
+    const mediaUrl = params.get('mediaUrl');
+    const chatId = params.get('chatId');
+
+    const textarea = document.getElementById('msgText');
+
+    document.getElementById('boldBtn').onclick = () => formatText('*');
+    document.getElementById('italicBtn').onclick = () => formatText('_');
+    document.getElementById('codeBtn').onclick = () => formatText('`');
+    document.getElementById('strikeBtn').onclick = () => formatText('~');
+
+    function formatText(symbol) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+        const newText = symbol + selectedText + symbol;
+        textarea.setRangeText(newText);
+    }
+
+    document.getElementById('sendBtn').onclick = async () => {
+        const msgText = textarea.value;
+        // Send directly:
+        try {
+            const response = await fetch('http://localhost:5000/fetch_and_send_to_telegram', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    media_url: mediaUrl,
+                    chat_id: chatId,
+                    msg_text: msgText
+                })
+            });
+            const result = await response.json();
+            console.log('✅ Success:', result);
+        } catch (error) {
+            console.error('❌ Error:', error);
+        }
+        window.close();
+    };
+    </script>
+</body>
+</html>
