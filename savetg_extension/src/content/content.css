@@ -1,4 +1,4 @@
-/* Trigger Button Style */
+/* === Trigger Button Style === */
 .trigger-button {
     background-color: #FF5733; /* Vibrant Orange for high visibility */
     color: #FFFFFF; /* White text for contrast */
@@ -10,7 +10,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: absolute;
 
-    /* Maximum z-index and pointer-events to stay above all layers */
     z-index: 2147483647 !important;
     pointer-events: auto !important;
 
@@ -18,7 +17,7 @@
     cursor: pointer; /* Pointer on hover */
 }
 
-/* Remove hover/focus effects to prevent the button from "jumping" */
+/* Prevent unwanted hover/focus effects */
 .trigger-button:hover,
 .trigger-button:focus {
     outline: none !important;
@@ -26,24 +25,23 @@
     transform: none !important;
 }
 
-/* Popup Menu Style */
+/* === Popup Menu Style === */
 .bot-dict-menu {
     position: absolute;
     z-index: 100000;
     background-color: #FFF;
     border: 1px solid #CCC;
     border-radius: 5px;
-    padding: 10px;
+    padding: 15px;
     box-shadow: 0 4px 8px rgba(0,0,0,.2);
     font-size: 16px;
     color: #333;
 
-    /* Layout: 5 buttons per row */
+    /* Grid layout: 5 buttons per row */
     display: grid;
-    grid-template-columns: repeat(5, auto);
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 10px;
     justify-content: center;
-    padding: 15px;
 }
 
 /* Buttons inside the Popup Menu */
@@ -60,7 +58,7 @@
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0,0,0,.2);
 
-    /* Flex centering for text */
+    /* Flex centering */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -70,7 +68,11 @@
     text-overflow: ellipsis;
 }
 
-/* Toast Notification Style */
+.bot-dict-menu-button:hover {
+    background-color: #E04E2A; /* Slightly darker shade on hover */
+}
+
+/* === Toast Notification Style === */
 .toast {
     position: fixed;
     top: 10px;
