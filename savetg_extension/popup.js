@@ -18,16 +18,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //----------------------------------------------------------------
     // Load last entered Chat ID on popup open
-    chrome.storage.sync.get(['last_chat_id', 'extensionEnabled'], function(data) {
-        if (data.last_chat_id) {
-            chatIdInput.value = data.last_chat_id;
+    chrome.storage.sync.get(['input_chat_id', 'extensionEnabled'], function(data) {
+        if (data.input_chat_id) {
+            chatIdInput.value = data.input_chat_id;
         }
         updateToggleButtons(data.extensionEnabled);
     });
 
     // Save Chat ID immediately when typing
     chatIdInput.addEventListener('input', function() {
-        chrome.storage.sync.set({ 'last_chat_id': chatIdInput.value });
+        chrome.storage.sync.set({ 'input_chat_id': chatIdInput.value });
     });
 
     //----------------------------------------------------------------

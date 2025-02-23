@@ -43,7 +43,7 @@ async function setTeleportHistory(newHistory) {
 // Clear teleport history
 async function clearTeleportHistory() {
     const db = await initDB();
-    await db.delete(storeName, "history");
+    await db.delete(storeName, "teleport_history");
 }
 
 // Listen for messages from content scripts
@@ -59,6 +59,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "clearTeleportHistory") {
         clearTeleportHistory().then(() => sendResponse({success: true}));
         return true;
+    }
+
+    if (message.action === "refreshContextMenus") {
+        // Redrawing context menu
+        refreshContextMenus();
+        sendResponse({ success: true });
     }
 });
 
@@ -104,10 +110,15 @@ function initializeStorageVariables() {
  */
 function refreshContextMenus() {
     chrome.contextMenus.removeAll(() => {
-        chrome.storage.sync.get(["bot_dict"], (data) => {
+        chrome.storage.sync.get(["bot_dict", "lastChatId"], (data) => {
             const bot_dict = data.bot_dict || {};
             const chatNames = Object.keys(bot_dict);
+            const lastChatId = data.lastChatId;
 
+            console.log("Bot dict:", bot_dict);
+            console.log("Last chat ID:", lastChatId);
+
+            // Создаем базовое меню
             chrome.contextMenus.create({
                 id: "mediaSender", title: "Media Sender", contexts: ["image", "video"]
             });
@@ -123,6 +134,7 @@ function refreshContextMenus() {
                 contexts: ["image", "video"]
             });
 
+            // Если чатов нет, показываем "No chats found"
             if (chatNames.length === 0) {
                 chrome.contextMenus.create({
                     id: "noChatsSend",
@@ -140,11 +152,50 @@ function refreshContextMenus() {
                 });
                 return;
             }
+            const lastChatName = Object.keys(bot_dict).find(name => bot_dict[name] === lastChatId);
+            // Если lastChatId есть, добавляем его первым в меню
+            if (lastChatId && lastChatName) {
 
+                chrome.contextMenus.create({
+                    id: `last-sendDirect-${lastChatId}`,
+                    title: `🚀 ${lastChatName}`,
+                    parentId: "sendSubmenu",
+                    contexts: ["image", "video"]
+                });
+
+                chrome.contextMenus.create({
+                    id: `last-sendWithText-${lastChatId}`,
+                    title: `🚀 ${lastChatName}`,
+                    parentId: "sendWithTextSubmenu",
+                    contexts: ["image", "video"]
+                });
+
+
+                // 🔹 Добавляем разделитель после Last chat
+                chrome.contextMenus.create({
+                    id: "separator1",
+                    type: "separator",
+                    parentId: "sendSubmenu",
+                    contexts: ["image", "video"]
+                });
+
+                chrome.contextMenus.create({
+                    id: "separator2",
+                    type: "separator",
+                    parentId: "sendWithTextSubmenu",
+                    contexts: ["image", "video"]
+                });
+            }
+
+            // Добавляем все остальные чаты, пропуская lastChatId, чтобы он не дублировался
             chatNames.forEach((chatName) => {
                 chrome.contextMenus.create({
-                    id: `sendDirect-${chatName}`, title: chatName, parentId: "sendSubmenu", contexts: ["image", "video"]
+                    id: `sendDirect-${chatName}`,
+                    title: chatName,
+                    parentId: "sendSubmenu",
+                    contexts: ["image", "video"]
                 });
+
                 chrome.contextMenus.create({
                     id: `sendWithText-${chatName}`,
                     title: chatName,
@@ -156,6 +207,9 @@ function refreshContextMenus() {
     });
 }
 
+
+
+
 /**
  * Handles clicks on the context menu.
  */
@@ -164,7 +218,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
     // Mapping menu item prefixes to corresponding message types
     const menuActions = {
-        "sendDirect-": "sendMediaWithText", "sendWithText-": "showTextEditor"
+        "sendDirect-": "sendMediaWithText", "sendWithText-": "showTextEditor",
+        "last-sendDirect-": "sendMediaWithText", "last-sendWithText-": "showTextEditor",
         // Add new types here without duplicating logic
     };
 
@@ -210,3 +265,4 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
         refreshContextMenus();
     }
 });
+

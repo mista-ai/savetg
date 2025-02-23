@@ -200,23 +200,35 @@ document.addEventListener('DOMContentLoaded', function () {
             dataList.appendChild(channelsDiv);
         });
 
-        // Load lastChat
-        chrome.storage.sync.get(['lastChat'], function (data) {
-            const lastChat = data.lastChat;
+        // Load lastChatId
+        chrome.storage.sync.get(['lastChatId'], function (data) {
+            const lastChatId = data.lastChatId;
             const lastDiv = document.createElement('div');
             lastDiv.innerHTML = '<h4>Last Chat</h4>';
-            if (lastChat && lastChat.name && lastChat.id) {
-                lastDiv.innerHTML += `<p>${lastChat.name}: ${lastChat.id} <button id="deleteLast" class="delete-btn">Delete</button></p>`;
+
+            if (lastChatId) {
+                // Получаем имя чата из bot_dict по lastChatId
+                chrome.storage.sync.get(['bot_dict'], function (botData) {
+                    const bot_dict = botData.bot_dict || {};
+                    const chatName = Object.keys(bot_dict).find(name => bot_dict[name] === lastChatId);
+
+                    if (chatName) {
+                        lastDiv.innerHTML += `<p>${chatName}: ${lastChatId} <button id="deleteLast" class="delete-btn">Delete</button></p>`;
+                    } else {
+                        lastDiv.innerHTML += `<p>Chat ID: ${lastChatId} (name not found) <button id="deleteLast" class="delete-btn">Delete</button></p>`;
+                    }
+
+                    dataList.appendChild(lastDiv);
+                    document.getElementById('deleteLast').addEventListener('click', function () {
+                        chrome.storage.sync.remove('lastChatId', loadData);
+                    });
+                });
             } else {
                 lastDiv.innerHTML += '<p>(none)</p>';
-            }
-            dataList.appendChild(lastDiv);
-            if (lastChat && lastChat.name && lastChat.id) {
-                document.getElementById('deleteLast').addEventListener('click', function () {
-                    chrome.storage.sync.remove('lastChat', loadData);
-                });
+                dataList.appendChild(lastDiv);
             }
         });
+
 
         // Load button position
         chrome.storage.sync.get(['buttonPlacement'], function (data) {

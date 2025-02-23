@@ -464,8 +464,8 @@ window.sendMediaWithText = async function sendMediaWithText(mediaUrl, chatId, ms
             console.log(`📤 Sending media: ${mediaUrl} to chat: ${chatId} with text: "${msgText}"`);
 
             // Send a POST request to the server to fetch and send media to Telegram
-//            fetch("http://localhost:5000/fetch_and_send_to_telegram", {
-            fetch("https://teleporter-93407217899.europe-west1.run.app/fetch_and_send_to_telegram", {
+            fetch("http://localhost:5000/fetch_and_send_to_telegram", {
+//            fetch("https://teleporter-93407217899.europe-west1.run.app/fetch_and_send_to_telegram", {
 //            fetch("${apiUrl}/fetch_and_send_to_telegram", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -483,6 +483,12 @@ window.sendMediaWithText = async function sendMediaWithText(mediaUrl, chatId, ms
                     // Save the updated teleport history to IndexedDB
                     await setTeleportHistory(teleport_history);
                     console.log("🌐 teleport_history updated in IndexedDB:", teleport_history);
+
+                    chrome.storage.sync.set({ "lastChatId": chatId }, () => {
+                        // Send a message to the background to redraw the context menu
+                        chrome.runtime.sendMessage({ action: "refreshContextMenus" });
+                    });
+
                 })
                 .catch((error) => console.error("❌ Error:", error));  // Handle any errors
         } else {
