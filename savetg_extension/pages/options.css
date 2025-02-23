@@ -58,33 +58,7 @@ button:hover {
   justify-content: space-between;
   align-items: center;
 }
-.info-icon {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: #007bff;
-  color: white;
-  text-align: center;
-  font-size: 12px;
-  line-height: 16px;
-  cursor: pointer;
-  margin-left: 5px;
-}
-.tooltip {
-  display: none;
-  position: absolute;
-  background-color: #333;
-  color: white;
-  padding: 5px;
-  border-radius: 4px;
-  font-size: 12px;
-  width: 250px;
-  z-index: 1000;
-}
-.info-icon:hover + .tooltip {
-  display: block;
-}
+
 .history-controls {
   margin-bottom: 10px;
 }
@@ -143,25 +117,6 @@ button:hover {
   padding: 5px;
 }
 
-/* Кнопка удаления */
-.delete-history-btn {
-  cursor: pointer;
-  background-color: #ff4d4d; /* Более мягкий красный */
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: bold;
-  transition: background-color 0.3s, transform 0.2s ease;
-}
-
-/* Эффект наведения */
-.delete-history-btn:hover {
-  background-color: #cc0000;
-  transform: scale(1.1);
-}
-
 /* Общие стили для таблицы */
 .history-table {
     width: 100%;
@@ -212,4 +167,92 @@ button:hover {
 
 .delete-button:active {
     transform: scale(1);
+}
+
+/* 🔍 Поиск в истории */
+#searchHistoryBlock {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+#searchHistoryInput {
+  width: calc(100% - 12px);
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+#searchHistoryBtn {
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+#searchHistoryBtn:hover {
+  background-color: #0056b3;
+}
+
+#searchHistoryResult {
+  margin-top: 10px;
+}
+
+.hidden-block {
+    display: none;
+}
+
+/* Кнопка скрытия истории */
+.toggle-history-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: background-color 0.3s;
+}
+
+.toggle-history-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Контейнер пагинации */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    gap: 10px;
+}
+
+/* Кнопки пагинации */
+.pagination-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination-btn:hover {
+    background-color: #218838;
+}
+
+.pagination-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
 }

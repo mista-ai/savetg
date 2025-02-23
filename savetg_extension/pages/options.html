@@ -37,7 +37,11 @@
     </div>
 
     <h4>Saved Chats</h4>
-    <div id="chatList"></div>
+    <button id="toggleSavedChats">Show/Hide Saved Chats</button>
+    <div id="chatListContainer">
+        <div id="chatList"></div>
+    </div>
+
 </div>
 
 <!-- FAQ page -->
@@ -86,6 +90,9 @@
 <!-- Stored Data page -->
 <div id="dataPage" class="content hidden">
     <h3>Stored Data</h3>
+    <h4>Channels (bot_dict)</h4>
+    <button id="toggleBotDict">Show/Hide Channels</button>
+    <div id="botDictContainer"></div>
     <div id="dataList"></div>
     <button id="clearData">Clear All Data</button>
 </div>

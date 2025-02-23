@@ -175,28 +175,6 @@ document.addEventListener('DOMContentLoaded', function () {
         chrome.storage.sync.get(['bot_dict'], function (data) {
             const bot_dict = data.bot_dict || {};
             const channelsDiv = document.createElement('div');
-            channelsDiv.innerHTML = '<h4>Channels (bot_dict)</h4>';
-            for (const [chatName, chatId] of Object.entries(bot_dict)) {
-                const item = document.createElement('div');
-                item.className = 'data-item';
-                const span = document.createElement('span');
-                span.textContent = `${chatName}: ${chatId}`;
-                const delBtn = document.createElement('button');
-                delBtn.textContent = 'Delete';
-                delBtn.className = 'delete-btn';
-                delBtn.onclick = function () {
-                    delete bot_dict[chatName];
-                    chrome.storage.sync.set({
-                        'bot_dict': bot_dict
-                    }, function () {
-                        loadData();
-                        loadChats();
-                    });
-                };
-                item.appendChild(span);
-                item.appendChild(delBtn);
-                channelsDiv.appendChild(item);
-            }
             dataList.appendChild(channelsDiv);
         });
 
@@ -544,4 +522,45 @@ document.addEventListener('DOMContentLoaded', function () {
     // Навешиваем обработчик на кнопку поиска
     searchHistoryBtn.addEventListener('click', searchTeleportHistory);
 
+    // Toggle "Saved Chats" visibility
+    const toggleSavedChatsBtn = document.getElementById('toggleSavedChats');
+    const chatListContainer = document.getElementById('chatListContainer');
+
+    toggleSavedChatsBtn.addEventListener('click', function () {
+        chatListContainer.classList.toggle('hidden-block');
+    });
+
+    // Toggle "Channels (bot_dict)" visibility
+    const toggleBotDictBtn = document.getElementById('toggleBotDict');
+    const botDictContainer = document.getElementById('botDictContainer');
+
+    toggleBotDictBtn.addEventListener('click', function () {
+        botDictContainer.classList.toggle('hidden-block');
+    });
+
+    // Загрузка Channels (bot_dict) с возможностью скрытия
+    chrome.storage.sync.get(['bot_dict'], function (data) {
+        const bot_dict = data.bot_dict || {};
+        botDictContainer.innerHTML = ''; // Очищаем перед обновлением
+
+        for (const [chatName, chatId] of Object.entries(bot_dict)) {
+            const item = document.createElement('div');
+            item.className = 'data-item';
+            const span = document.createElement('span');
+            span.textContent = `${chatName}: ${chatId}`;
+            const delBtn = document.createElement('button');
+            delBtn.textContent = 'Delete';
+            delBtn.className = 'delete-btn';
+            delBtn.onclick = function () {
+                delete bot_dict[chatName];
+                chrome.storage.sync.set({ 'bot_dict': bot_dict }, function () {
+                    loadData();
+                    loadChats();
+                });
+            };
+            item.appendChild(span);
+            item.appendChild(delBtn);
+            botDictContainer.appendChild(item);
+        }
+    });
 });
