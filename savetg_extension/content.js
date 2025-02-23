@@ -172,8 +172,7 @@ function showTextEditorPanel(mediaUrl, chatId) {
     formatButtonsContainer.style.marginTop = '10px';
 
     const formatting = [{symbol: '*', label: 'Bold'}, {symbol: '_', label: 'Italic'}, {
-        symbol: '`',
-        label: 'Code'
+        symbol: '`', label: 'Code'
     }, {symbol: '~', label: 'Strikethrough'}];
 
     formatting.forEach(item => {
@@ -435,22 +434,6 @@ async function setTeleportHistory(data) {
     });
 }
 
-// 🚀 Request teleport history from background.js
-async function getTeleportHistory() {
-    return new Promise((resolve) => {
-        // Sending a message to background.js to get the teleport history
-        chrome.runtime.sendMessage({ action: "getTeleportHistory" }, resolve);
-    });
-}
-
-// 🚀 Save teleport history to background.js
-async function setTeleportHistory(data) {
-    return new Promise((resolve) => {
-        // Sending a message to background.js to set the updated teleport history
-        chrome.runtime.sendMessage({ action: "setTeleportHistory", data }, resolve);
-    });
-}
-
 // 🚀 Main function to send media
 window.sendMediaWithText = async function sendMediaWithText(mediaUrl, chatId, msgText) {
     const raw_link = parseRawLink(mediaUrl);  // Get the raw_link for use as the key
@@ -468,8 +451,8 @@ window.sendMediaWithText = async function sendMediaWithText(mediaUrl, chatId, ms
 //            fetch("https://teleporter-93407217899.europe-west1.run.app/fetch_and_send_to_telegram", {
 //            fetch("${apiUrl}/fetch_and_send_to_telegram", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ media_url: mediaUrl, chat_id: chatId, msg_text: msgText }),
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({media_url: mediaUrl, chat_id: chatId, msg_text: msgText}),
             })
                 .then((response) => response.json())  // Parse the response as JSON
                 .then(async (result) => {
@@ -484,9 +467,9 @@ window.sendMediaWithText = async function sendMediaWithText(mediaUrl, chatId, ms
                     await setTeleportHistory(teleport_history);
                     console.log("🌐 teleport_history updated in IndexedDB:", teleport_history);
 
-                    chrome.storage.sync.set({ "lastChatId": chatId }, () => {
+                    chrome.storage.sync.set({"lastChatId": chatId}, () => {
                         // Send a message to the background to redraw the context menu
-                        chrome.runtime.sendMessage({ action: "refreshContextMenus" });
+                        chrome.runtime.sendMessage({action: "refreshContextMenus"});
                     });
 
                 })

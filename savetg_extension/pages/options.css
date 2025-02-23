@@ -1,120 +1,133 @@
 body {
-  width: 320px;
-  padding: 10px;
-  font-family: Arial, sans-serif;
+    width: 320px;
+    padding: 10px;
+    font-family: Arial, sans-serif;
 }
+
 .hidden {
-  display: none;
+    display: none;
 }
+
 #menu {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 15px;
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
 }
+
 .tab-button {
-  padding: 5px 10px;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
 }
+
 .tab-button:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
+
 .content {
-  padding: 10px;
+    padding: 10px;
 }
+
 input, button, select, textarea {
-  width: calc(100% - 12px);
-  padding: 5px;
-  margin: 5px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
+    width: calc(100% - 12px);
+    padding: 5px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
 }
+
 button {
-  background-color: #28a745;
-  color: white;
-  cursor: pointer;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
 }
+
 button:hover {
-  background-color: #218838;
+    background-color: #218838;
 }
+
 .delete-btn {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  cursor: pointer;
-  padding: 3px 6px;
-  font-size: 12px;
-  margin-left: 5px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 3px 6px;
+    font-size: 12px;
+    margin-left: 5px;
 }
+
 .data-item {
-  border-bottom: 1px solid #ccc;
-  padding: 5px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .history-controls {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
+
 .history-controls button {
-  margin-right: 5px;
+    margin-right: 5px;
 }
 
 /* Кнопка Refresh (Обновить) */
 #refreshHistoryBtn {
-  margin-left: 10px;
-  background-color: #007bff;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
+    margin-left: 10px;
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
 }
+
 #refreshHistoryBtn:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 /* Button Save History */
 #saveHistoryBtn {
-  background-color: #28a745;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
+    background-color: #28a745;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
 }
+
 #saveHistoryBtn.dont-save {
-  background-color: #dc3545; /* When history is not saved */
+    background-color: #dc3545; /* When history is not saved */
 }
 
 
 /* Таблица истории */
 #historyList table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 /* Заголовки таблицы */
 #historyList th {
-  border: 1px solid #ccc;
-  padding: 5px;
-  background-color: #f2f2f2;
-  font-weight: bold;
-  text-align: left;
+    border: 1px solid #ccc;
+    padding: 5px;
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-align: left;
 }
 
 /* Ячейки таблицы */
 #historyList td {
-  border: 1px solid #ccc;
-  padding: 5px;
+    border: 1px solid #ccc;
+    padding: 5px;
 }
 
 /* Общие стили для таблицы */
@@ -171,38 +184,38 @@ button:hover {
 
 /* 🔍 Поиск в истории */
 #searchHistoryBlock {
-  margin-bottom: 15px;
-  padding: 10px;
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
 #searchHistoryInput {
-  width: calc(100% - 12px);
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
+    width: calc(100% - 12px);
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
 }
 
 #searchHistoryBtn {
-  background-color: #007bff;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-top: 5px;
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 5px;
 }
 
 #searchHistoryBtn:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 #searchHistoryResult {
-  margin-top: 10px;
+    margin-top: 10px;
 }
 
 .hidden-block {

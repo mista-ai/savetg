@@ -35,10 +35,10 @@ async function deleteTeleportHistoryEntry(rawLink, chatId) {
         }
 
         await db.put(storeName, existingHistory, "teleport_history");
-        return { success: true };
+        return {success: true};
     }
 
-    return { success: false, error: "Entry not found" };
+    return {success: false, error: "Entry not found"};
 }
 
 // Set teleport history
@@ -143,20 +143,24 @@ function refreshContextMenus() {
             console.log("Bot dict:", bot_dict);
             console.log("Last chat ID:", lastChatId);
 
-            // Создаем базовое меню
-            chrome.contextMenus.create({
-                id: "mediaSender", title: "Media Sender", contexts: ["image", "video"]
-            });
+            // // Создаем базовое меню
+            // chrome.contextMenus.create({
+            //     id: "mediaSender", title: "Media Sender", contexts: ["image", "video"]
+            // });
 
             chrome.contextMenus.create({
-                id: "sendSubmenu", title: "Send", parentId: "mediaSender", contexts: ["image", "video"]
-            });
-
-            chrome.contextMenus.create({
-                id: "sendWithTextSubmenu",
-                title: "Send with text",
-                parentId: "mediaSender",
+                id: "sendSubmenu", title: "Send", // parentId: "mediaSender",
                 contexts: ["image", "video"]
+            });
+
+
+            chrome.contextMenus.create({
+                id: "sendWithTextSubmenu", title: "Send with text", // parentId: "mediaSender",
+                contexts: ["image", "video"]
+            });
+
+            chrome.contextMenus.create({
+                id: "searchTeleportHistory", title: "Search in Teleport History", contexts: ["image", "video"]
             });
 
             // Если чатов нет, показываем "No chats found"
@@ -198,27 +202,18 @@ function refreshContextMenus() {
 
                 // 🔹 Добавляем разделитель после Last chat
                 chrome.contextMenus.create({
-                    id: "separator1",
-                    type: "separator",
-                    parentId: "sendSubmenu",
-                    contexts: ["image", "video"]
+                    id: "separator1", type: "separator", parentId: "sendSubmenu", contexts: ["image", "video"]
                 });
 
                 chrome.contextMenus.create({
-                    id: "separator2",
-                    type: "separator",
-                    parentId: "sendWithTextSubmenu",
-                    contexts: ["image", "video"]
+                    id: "separator2", type: "separator", parentId: "sendWithTextSubmenu", contexts: ["image", "video"]
                 });
             }
 
             // Добавляем все остальные чаты, пропуская lastChatId, чтобы он не дублировался
             chatNames.forEach((chatName) => {
                 chrome.contextMenus.create({
-                    id: `sendDirect-${chatName}`,
-                    title: chatName,
-                    parentId: "sendSubmenu",
-                    contexts: ["image", "video"]
+                    id: `sendDirect-${chatName}`, title: chatName, parentId: "sendSubmenu", contexts: ["image", "video"]
                 });
 
                 chrome.contextMenus.create({
@@ -233,19 +228,26 @@ function refreshContextMenus() {
 }
 
 
-
-
 /**
  * Handles clicks on the context menu.
  */
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     const menuId = info.menuItemId;
 
+    if (menuId === "searchTeleportHistory") {
+        if (menuId === "searchTeleportHistory") {
+            chrome.storage.local.set({searchQuery: info.srcUrl}, () => {
+                chrome.runtime.openOptionsPage(); // Открываем страницу настроек
+            });
+        }
+    }
+
     // Mapping menu item prefixes to corresponding message types
     const menuActions = {
-        "sendDirect-": "sendMediaWithText", "sendWithText-": "showTextEditor",
-        "last-sendDirect-": "sendMediaWithText", "last-sendWithText-": "showTextEditor",
-        // Add new types here without duplicating logic
+        "sendDirect-": "sendMediaWithText",
+        "sendWithText-": "showTextEditor",
+        "last-sendDirect-": "sendMediaWithText",
+        "last-sendWithText-": "showTextEditor", // Add new types here without duplicating logic
     };
 
     // Determine the action based on `menuId`

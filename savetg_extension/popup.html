@@ -10,12 +10,15 @@
             font-family: Arial, sans-serif;
             text-align: center;
         }
+
         .hidden {
             display: none;
         }
+
         #instruction, #chatForm, #buttons, #toggleExtension {
             margin: 10px 0;
         }
+
         button {
             display: inline-block;
             width: 80px;
@@ -28,9 +31,11 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #0056b3;
         }
+
         input {
             width: calc(100% - 12px);
             padding: 5px;
@@ -39,6 +44,7 @@
             border-radius: 4px;
             font-size: 12px;
         }
+
         .btn-container {
             display: flex;
             justify-content: space-between;
@@ -47,39 +53,39 @@
     </style>
 </head>
 <body>
-    <!-- Instruction (shown on first launch) -->
-    <div id="instruction">
-        <h3>How to start?</h3>
-        <p>1. Subscribe to <a href="https://t.me/mista_save_tg_bot" target="_blank">the bot</a>.</p>
-        <p>2. Press "Start" in Telegram.</p>
-        <p>3. Copy your Chat ID and add it below.</p>
-        <button id="openBot">Bot</button>
-    </div>
+<!-- Instruction (shown on first launch) -->
+<div id="instruction">
+    <h3>How to start?</h3>
+    <p>1. Subscribe to <a href="https://t.me/mista_save_tg_bot" target="_blank">the bot</a>.</p>
+    <p>2. Press "Start" in Telegram.</p>
+    <p>3. Copy your Chat ID and add it below.</p>
+    <button id="openBot">Bot</button>
+</div>
 
-    <!-- Chat ID Input Form -->
-    <div id="chatForm">
-        <label for="chat_id">Chat ID:</label>
-        <input type="text" id="chat_id" placeholder="Enter Chat ID">
-        <label for="chat_title">Chat Title:</label>
-        <input type="text" id="chat_title" placeholder="Enter Chat Title">
-        <button id="addChat">Add Chat</button>
-    </div>
+<!-- Chat ID Input Form -->
+<div id="chatForm">
+    <label for="chat_id">Chat ID:</label>
+    <input type="text" id="chat_id" placeholder="Enter Chat ID">
+    <label for="chat_title">Chat Title:</label>
+    <input type="text" id="chat_title" placeholder="Enter Chat Title">
+    <button id="addChat">Add Chat</button>
+</div>
 
-    <!-- Buttons (shown after adding the first chat) -->
-    <div id="buttons" class="hidden">
-        <div class="btn-container">
-            <button id="openFAQ">FAQ</button>
-            <button id="openChats">Chats</button>
-            <button id="openBot2">Bot</button>
-        </div>
+<!-- Buttons (shown after adding the first chat) -->
+<div id="buttons" class="hidden">
+    <div class="btn-container">
+        <button id="openFAQ">FAQ</button>
+        <button id="openChats">Chats</button>
+        <button id="openBot2">Bot</button>
     </div>
+</div>
 
-    <!-- Turn On / Turn Off Buttons -->
-    <div id="toggleExtension">
-        <button id="turnOn">Turn On</button>
-        <button id="turnOff">Turn Off</button>
-    </div>
+<!-- Turn On / Turn Off Buttons -->
+<div id="toggleExtension">
+    <button id="turnOn">Turn On</button>
+    <button id="turnOff">Turn Off</button>
+</div>
 
-    <script src="popup.js"></script>
+<script src="popup.js"></script>
 </body>
 </html>

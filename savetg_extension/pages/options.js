@@ -289,6 +289,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    chrome.storage.local.get(["searchQuery"], (result) => {
+        // Переключаемся на вкладку "History" (отображаем ее, скрывая другие)
+        settingsPage.classList.add('hidden');
+        faqPage.classList.add('hidden');
+        buttonPositionPage.classList.add('hidden');
+        dataPage.classList.add('hidden');
+        historyPage.classList.remove('hidden'); // Показываем историю!
+
+        if (result.searchQuery) {
+            searchTeleportHistory(result.searchQuery)
+                .then(() => chrome.storage.local.remove("searchQuery")) // Удаляем searchQuery после завершения
+                .catch(console.error); // Ловим возможные ошибки
+        }
+    });
+
     // Function to load the save history state
     function loadSaveHistoryState() {
         chrome.storage.sync.get(['save_history'], function (data) {
@@ -466,24 +481,38 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Функция поиска по teleport_history
-    async function searchTeleportHistory() {
-        const inputValue = searchHistoryInput.value.trim();
-        if (!inputValue) {
-            alert("Enter a media link to search.");
-            return;
+    async function searchTeleportHistory(mediaUrl = null) {
+        let cleanUrl;
+
+        if (typeof mediaUrl !== "string" || !mediaUrl.trim()) {
+            // Проверяем, что элемент существует
+            if (!searchHistoryInput || !searchHistoryInput.value.trim()) {
+                alert("Enter a media link to search.");
+                return;
+            }
+            // Преобразуем ссылку из input
+            cleanUrl = searchHistoryInput.value.trim().split("?")[0].split(",")[0];
+        } else {
+            // Используем mediaUrl, если он передан
+            cleanUrl = mediaUrl.split("?")[0].split(",")[0];
         }
+
+        console.log("Searching for:", cleanUrl); // 🔍 Проверяем, какое значение ищем
 
         // Очистка результатов перед новым поиском
         searchHistoryResult.innerHTML = '';
 
-        // Преобразуем ссылку: оставляем только основной URL без параметров
-        const cleanUrl = inputValue.split("?")[0].split(",")[0];
-
         // Получаем teleport_history
         let teleport_history = await getTeleportHistory();
 
+        console.log("Teleport history:", teleport_history); // 🔍 Проверяем, что получили историю
+
         // Фильтруем по совпадению ссылки
-        let foundEntries = Object.entries(teleport_history).filter(([rawLink]) => rawLink.split("?")[0].split(",")[0] === cleanUrl);
+        let foundEntries = Object.entries(teleport_history).filter(([rawLink]) => {
+            return rawLink.split("?")[0].split(",")[0] === cleanUrl;
+        });
+
+        console.log("Found entries:", foundEntries); // 🔍 Проверяем, что нашли
 
         if (foundEntries.length === 0) {
             searchHistoryResult.innerHTML = "<p>No matches found.</p>";
@@ -493,6 +522,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Генерируем таблицу
         await generateHistoryTable(foundEntries, searchHistoryResult, searchTeleportHistory);
     }
+
 
     // 🚀 Функция загрузки истории с пагинацией
     async function loadHistory(page = 1) {
