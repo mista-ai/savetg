@@ -5,7 +5,7 @@ let extensionEnabled = false;
 let botDict = {};
 // Global variable for button placement (default: top-left)
 let buttonPlacement = 'top-left';
-let apiUrl = "https://teleporter-93407217899.europe-west1.run.app"
+//let apiUrl = "http://localhost:5000"
 
 
 // Load necessary values once
@@ -172,12 +172,10 @@ function showTextEditorPanel(mediaUrl, chatId) {
     let formatButtonsContainer = document.createElement('div');
     formatButtonsContainer.style.marginTop = '10px';
 
-    const formatting = [
-        {symbol: '*', label: 'Bold'},
-        {symbol: '_', label: 'Italic'},
-        {symbol: '`', label: 'Code'},
-        {symbol: '~', label: 'Strikethrough'}
-    ];
+    const formatting = [{symbol: '*', label: 'Bold'}, {symbol: '_', label: 'Italic'}, {
+        symbol: '`',
+        label: 'Code'
+    }, {symbol: '~', label: 'Strikethrough'}];
 
     formatting.forEach(item => {
         let btn = document.createElement('button');
@@ -385,8 +383,7 @@ function getImageUrlFromTarget(target) {
             let srcset = target.getAttribute('srcset').split(',').map(src => {
                 let parts = src.trim().split(' ');
                 return {
-                    url: parts[0],
-                    width: parseInt(parts[1], 10)
+                    url: parts[0], width: parseInt(parts[1], 10)
                 };
             });
             srcset.sort((a, b) => b.width - a.width);
@@ -426,49 +423,55 @@ function showToast(message) {
 // 🚀 Request teleport history from background.js
 async function getTeleportHistory() {
     return new Promise((resolve) => {
-        chrome.runtime.sendMessage({ action: "getTeleportHistory" }, resolve);
+        // Sending a message to background.js to get the teleport history
+        chrome.runtime.sendMessage({action: "getTeleportHistory"}, resolve);
     });
 }
 
 // 🚀 Save teleport history to background.js
 async function setTeleportHistory(data) {
     return new Promise((resolve) => {
-        chrome.runtime.sendMessage({ action: "setTeleportHistory", data }, resolve);
+        // Sending a message to background.js to set the updated teleport history
+        chrome.runtime.sendMessage({action: "setTeleportHistory", data}, resolve);
     });
 }
 
 // 🚀 Main function to send media
 window.sendMediaWithText = async function sendMediaWithText(mediaUrl, chatId, msgText) {
-    const raw_link = parseRawLink(mediaUrl);
-    let teleport_history = await getTeleportHistory(); // Fetch history from IndexedDB
+    const raw_link = parseRawLink(mediaUrl);  // Get the raw_link for use as the key
+    let teleport_history = await getTeleportHistory();  // Fetch the teleport history from IndexedDB
 
     chrome.storage.sync.get(["save_history"], async (data) => {
-        const shouldSave = data.save_history || false;
+        const shouldSave = data.save_history || false;  // Check if history saving is enabled
 
+        // If saving is enabled and the media has not been sent to this chat before
         if (!shouldSave || !(raw_link in teleport_history && chatId in teleport_history[raw_link])) {
             console.log(`📤 Sending media: ${mediaUrl} to chat: ${chatId} with text: "${msgText}"`);
 
-            fetch("${apiUrl}/fetch_and_send_to_telegram", {
+            // Send a POST request to the server to fetch and send media to Telegram
+            fetch("http://localhost:5000/fetch_and_send_to_telegram", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ media_url: mediaUrl, chat_id: chatId, msg_text: msgText }),
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({media_url: mediaUrl, chat_id: chatId, msg_text: msgText}),
             })
-                .then((response) => response.json())
+                .then((response) => response.json())  // Parse the response as JSON
                 .then(async (result) => {
                     console.log("✅ Success:", result);
-                    const linkToTelegramPost = result.link;
+                    const linkToTelegramPost = result.link;  // Get the Telegram post link from the response
 
-                    teleport_history[raw_link] = teleport_history[raw_link] || {};
-                    teleport_history[raw_link][chatId] = linkToTelegramPost;
+                    // Check if raw_link already exists in teleport_history
+                    teleport_history[raw_link] = teleport_history[raw_link] || {};  // Initialize the object if it doesn't exist
+                    teleport_history[raw_link][chatId] = linkToTelegramPost;  // Add chatId as the key and linkToTelegramPost as the value
 
-                    await setTeleportHistory(teleport_history); // Save updated history
+                    // Save the updated teleport history to IndexedDB
+                    await setTeleportHistory(teleport_history);
                     console.log("🌐 teleport_history updated in IndexedDB:", teleport_history);
                 })
-                .catch((error) => console.error("❌ Error:", error));
+                .catch((error) => console.error("❌ Error:", error));  // Handle any errors
         } else {
+            // If the media has already been sent to this chat, do not resend it
             console.log(raw_link, "has already been sent to this chat", chatId);
             showToast(`⚠ Media will not be sent because it has already been sent before to chat "${chatId}".`);
         }
     });
 };
-

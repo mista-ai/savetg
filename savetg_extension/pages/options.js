@@ -142,8 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.sync.get(['bot_dict'], function (data) {
                 const bot_dict = data.bot_dict || {};
                 const jsonArray = Object.entries(bot_dict).map(([chat_name, chat_id]) => ({
-                    chat_name,
-                    chat_id
+                    chat_name, chat_id
                 }));
                 jsonTextarea.value = JSON.stringify(jsonArray, null, 2);
             });
@@ -287,6 +286,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+
+
     // Click event handler for the Save History button
     saveHistoryBtn.addEventListener('click', function () {
         chrome.storage.sync.get(['save_history'], function (data) {
@@ -319,18 +320,19 @@ document.addEventListener('DOMContentLoaded', function () {
     // 🚀 Request teleport history from background.js
     async function getTeleportHistory() {
         return new Promise((resolve) => {
-            chrome.runtime.sendMessage({ action: "getTeleportHistory" }, resolve);
+            chrome.runtime.sendMessage({action: "getTeleportHistory"}, resolve);
         });
     }
 
-// 🚀 Clear teleport history via background.js
+    // 🚀 Clear teleport history via background.js
     async function clearTeleportHistory() {
         return new Promise((resolve) => {
             chrome.runtime.sendMessage({ action: "clearTeleportHistory" }, resolve);
         });
     }
 
-// 🚀 Function to load teleport history
+
+    // 🚀 Function to load teleport history
     async function loadHistory() {
         historyList.innerHTML = '';
 
@@ -347,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Table header
         const headerRow = document.createElement('tr');
-        ['Image Link', 'Chat Number', 'Msg Number'].forEach(text => {
+        ['Image Link', 'Chat Name', 'Msg Number'].forEach(text => {
             const th = document.createElement('th');
             th.textContent = text;
             th.style.border = "1px solid #ccc";
@@ -356,6 +358,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         table.appendChild(headerRow);
 
+        // Iterating over teleport history to display data
         Object.entries(teleport_history).forEach(([rawLink, chatObj]) => {
             Object.entries(chatObj).forEach(([chat_id, tgLink], index) => {
                 const row = document.createElement('tr');
@@ -374,30 +377,38 @@ document.addEventListener('DOMContentLoaded', function () {
                     row.appendChild(tdImage);
                 }
 
-                const tdChat = document.createElement('td');
-                tdChat.style.border = "1px solid #ccc";
-                tdChat.style.padding = "5px";
-                tdChat.textContent = `chat_${chat_id}`;
-                row.appendChild(tdChat);
+                // Get chat_name from bot_dict based on chat_id
+                chrome.storage.sync.get(['bot_dict'], function (data) {
+                    const bot_dict = data.bot_dict || {};
+                    const chat_name = Object.keys(bot_dict).find(name => bot_dict[name] === chat_id); // Find the chat_name by chat_id
 
-                const tdMsg = document.createElement('td');
-                tdMsg.style.border = "1px solid #ccc";
-                tdMsg.style.padding = "5px";
-                const messageLink = document.createElement('a');
-                messageLink.href = tgLink;
-                messageLink.textContent = "message_link";
-                messageLink.target = "_blank";
-                tdMsg.appendChild(messageLink);
-                row.appendChild(tdMsg);
+                    const tdChat = document.createElement('td');
+                    tdChat.style.border = "1px solid #ccc";
+                    tdChat.style.padding = "5px";
+                    tdChat.textContent = chat_name || `Unknown chat (${chat_id})`; // Display chat_name or fallback to chat_id
+                    row.appendChild(tdChat);
 
-                table.appendChild(row);
+                    const tdMsg = document.createElement('td');
+                    tdMsg.style.border = "1px solid #ccc";
+                    tdMsg.style.padding = "5px";
+                    const messageLink = document.createElement('a');
+                    messageLink.href = tgLink;
+                    messageLink.textContent = "message_link";
+                    messageLink.target = "_blank";
+                    tdMsg.appendChild(messageLink);
+                    row.appendChild(tdMsg);
+
+                    table.appendChild(row);
+                });
             });
         });
 
         historyList.appendChild(table);
     }
 
-// 🚀 Clear button action
+
+
+    // 🚀 Clear button action
     clearHistoryBtn.addEventListener('click', async function () {
         if (confirm("Are you sure you want to clear the entire Teleport History?")) {
             await clearTeleportHistory();

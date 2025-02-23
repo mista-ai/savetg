@@ -17,24 +17,28 @@ async function initDB() {
 // Get teleport history
 async function getTeleportHistory() {
     const db = await initDB();
-    return (await db.get(storeName, "history")) || {};
+    // Return the entire object (no longer using "history" as the key)
+    return (await db.get(storeName, "teleport_history")) || {};
 }
 
 // Set teleport history
 async function setTeleportHistory(newHistory) {
     const db = await initDB();
-    let existingHistory = (await db.get(storeName, "history")) || {};
+    let existingHistory = (await db.get(storeName, "teleport_history")) || {};
 
-    Object.entries(newHistory).forEach(([key, value]) => {
-        if (!existingHistory[key]) {
-            existingHistory[key] = value;
+    // Merge the new history with the existing one, with each raw_link as the key
+    Object.entries(newHistory).forEach(([raw_link, value]) => {
+        if (!existingHistory[raw_link]) {
+            existingHistory[raw_link] = value;
         } else {
-            Object.assign(existingHistory[key], value);
+            Object.assign(existingHistory[raw_link], value);
         }
     });
 
-    await db.put(storeName, existingHistory, "history");
+    // Save the updated history to IndexedDB with the new structure
+    await db.put(storeName, existingHistory, "teleport_history");
 }
+
 
 // Clear teleport history
 async function clearTeleportHistory() {
@@ -49,11 +53,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true; // Keep the message channel open for async response
     }
     if (message.action === "setTeleportHistory") {
-        setTeleportHistory(message.data).then(() => sendResponse({ success: true }));
+        setTeleportHistory(message.data).then(() => sendResponse({success: true}));
         return true;
     }
     if (message.action === "clearTeleportHistory") {
-        clearTeleportHistory().then(() => sendResponse({ success: true }));
+        clearTeleportHistory().then(() => sendResponse({success: true}));
         return true;
     }
 });
@@ -63,8 +67,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
  * Initializes variables in chrome.storage.sync when the extension is installed or updated.
  */
 function initializeStorageVariables() {
-    chrome.storage.sync.get(
-        ["bot_dict", "buttonPlacement", "save_history"], // 🚀 Removed 'teleport_history'
+    chrome.storage.sync.get(["bot_dict", "buttonPlacement", "save_history"], // 🚀 Removed 'teleport_history'
         (data) => {
             const updates = {};
 
@@ -83,8 +86,7 @@ function initializeStorageVariables() {
                     console.log("Initialized storage variables:", updates);
                 });
             }
-        }
-    );
+        });
 
     // 🚀 Now initialize teleport_history in IndexedDB instead
     initDB().then(() => {
@@ -107,16 +109,11 @@ function refreshContextMenus() {
             const chatNames = Object.keys(bot_dict);
 
             chrome.contextMenus.create({
-                id: "mediaSender",
-                title: "Media Sender",
-                contexts: ["image", "video"]
+                id: "mediaSender", title: "Media Sender", contexts: ["image", "video"]
             });
 
             chrome.contextMenus.create({
-                id: "sendSubmenu",
-                title: "Send",
-                parentId: "mediaSender",
-                contexts: ["image", "video"]
+                id: "sendSubmenu", title: "Send", parentId: "mediaSender", contexts: ["image", "video"]
             });
 
             chrome.contextMenus.create({
@@ -146,10 +143,7 @@ function refreshContextMenus() {
 
             chatNames.forEach((chatName) => {
                 chrome.contextMenus.create({
-                    id: `sendDirect-${chatName}`,
-                    title: chatName,
-                    parentId: "sendSubmenu",
-                    contexts: ["image", "video"]
+                    id: `sendDirect-${chatName}`, title: chatName, parentId: "sendSubmenu", contexts: ["image", "video"]
                 });
                 chrome.contextMenus.create({
                     id: `sendWithText-${chatName}`,
@@ -170,8 +164,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
     // Mapping menu item prefixes to corresponding message types
     const menuActions = {
-        "sendDirect-": "sendMediaWithText",
-        "sendWithText-": "showTextEditor"
+        "sendDirect-": "sendMediaWithText", "sendWithText-": "showTextEditor"
         // Add new types here without duplicating logic
     };
 
@@ -192,9 +185,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         }
 
         chrome.tabs.sendMessage(tab.id, {
-            type: messageType,
-            mediaUrl: info.srcUrl,
-            chatId: chatId
+            type: messageType, mediaUrl: info.srcUrl, chatId: chatId
         });
     });
 });
