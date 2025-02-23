@@ -1,44 +1,50 @@
-// Open IndexedDB
-function openDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open("teleportDB", 1);
+import {openDB} from "./libs/idb.js";
 
-        request.onupgradeneeded = (event) => {
-            let db = event.target.result;
-            if (!db.objectStoreNames.contains("teleport_history")) {
-                db.createObjectStore("teleport_history", { keyPath: "id", autoIncrement: true });
+const dbName = "MediaSenderDB";  // ✅ Ensure only this DB is used
+const storeName = "teleport_history";
+
+async function initDB() {
+    return await openDB(dbName, 1, {
+        upgrade(db) {
+            if (!db.objectStoreNames.contains(storeName)) {
+                db.createObjectStore(storeName);
             }
-        };
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject(request.error);
+        }
     });
 }
 
-// Save a new entry in history
-async function saveTeleportHistory(data) {
-    const db = await openDB();
-    const transaction = db.transaction("teleport_history", "readwrite");
-    const store = transaction.objectStore("teleport_history");
-    store.add({ timestamp: Date.now(), data });
+export async function getTeleportHistory() {
+    const db = await initDB();
+    let result = await db.get(storeName, "history");
+
+    console.log("🔍 Retrieved teleport_history from IndexedDB:", result); // Debugging output
+
+    return result || {};
 }
 
-// Retrieve all history records
-async function getTeleportHistory() {
-    const db = await openDB();
-    return new Promise((resolve) => {
-        const transaction = db.transaction("teleport_history", "readonly");
-        const store = transaction.objectStore("teleport_history");
-        const request = store.getAll();
+export async function setTeleportHistory(newHistory) {
+    const db = await initDB();
 
-        request.onsuccess = () => resolve(request.result);
+    // Retrieve existing history
+    let existingHistory = await db.get(storeName, "history") || {};
+
+    console.log("📥 Existing teleport_history before update:", existingHistory);
+
+    // Merge the old and new history
+    Object.entries(newHistory).forEach(([key, value]) => {
+        if (!existingHistory[key]) {
+            existingHistory[key] = value;
+        } else {
+            Object.assign(existingHistory[key], value);
+        }
     });
+
+    console.log("📤 Updated teleport_history being saved:", existingHistory);
+
+    await db.put(storeName, existingHistory, "history");
 }
 
-// Clear history
-async function clearTeleportHistory() {
-    const db = await openDB();
-    const transaction = db.transaction("teleport_history", "readwrite");
-    const store = transaction.objectStore("teleport_history");
-    store.clear();
+export async function clearTeleportHistory() {
+    const db = await initDB();
+    await db.delete(storeName, "history");
 }

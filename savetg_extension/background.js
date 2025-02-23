@@ -1,11 +1,70 @@
-// background.js
+import {openDB} from "./libs/idb.js";
+
+const dbName = "MediaSenderDB";
+const storeName = "teleport_history";
+
+// Initialize IndexedDB
+async function initDB() {
+    return await openDB(dbName, 1, {
+        upgrade(db) {
+            if (!db.objectStoreNames.contains(storeName)) {
+                db.createObjectStore(storeName);
+            }
+        }
+    });
+}
+
+// Get teleport history
+async function getTeleportHistory() {
+    const db = await initDB();
+    return (await db.get(storeName, "history")) || {};
+}
+
+// Set teleport history
+async function setTeleportHistory(newHistory) {
+    const db = await initDB();
+    let existingHistory = (await db.get(storeName, "history")) || {};
+
+    Object.entries(newHistory).forEach(([key, value]) => {
+        if (!existingHistory[key]) {
+            existingHistory[key] = value;
+        } else {
+            Object.assign(existingHistory[key], value);
+        }
+    });
+
+    await db.put(storeName, existingHistory, "history");
+}
+
+// Clear teleport history
+async function clearTeleportHistory() {
+    const db = await initDB();
+    await db.delete(storeName, "history");
+}
+
+// Listen for messages from content scripts
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "getTeleportHistory") {
+        getTeleportHistory().then(sendResponse);
+        return true; // Keep the message channel open for async response
+    }
+    if (message.action === "setTeleportHistory") {
+        setTeleportHistory(message.data).then(() => sendResponse({ success: true }));
+        return true;
+    }
+    if (message.action === "clearTeleportHistory") {
+        clearTeleportHistory().then(() => sendResponse({ success: true }));
+        return true;
+    }
+});
+
 
 /**
  * Initializes variables in chrome.storage.sync when the extension is installed or updated.
  */
 function initializeStorageVariables() {
     chrome.storage.sync.get(
-        ["bot_dict", "buttonPlacement", "save_history", "teleport_history"],
+        ["bot_dict", "buttonPlacement", "save_history"], // 🚀 Removed 'teleport_history'
         (data) => {
             const updates = {};
 
@@ -18,9 +77,6 @@ function initializeStorageVariables() {
             if (typeof data.save_history !== "boolean") {
                 updates.save_history = false;
             }
-            if (!data.teleport_history || typeof data.teleport_history !== "object" || Array.isArray(data.teleport_history)) {
-                updates.teleport_history = {};
-            }
 
             if (Object.keys(updates).length > 0) {
                 chrome.storage.sync.set(updates, () => {
@@ -29,6 +85,16 @@ function initializeStorageVariables() {
             }
         }
     );
+
+    // 🚀 Now initialize teleport_history in IndexedDB instead
+    initDB().then(() => {
+        getTeleportHistory().then(history => {
+            if (!history || Object.keys(history).length === 0) {
+                console.log("📂 Initializing empty teleport_history in IndexedDB");
+                setTeleportHistory({});
+            }
+        });
+    });
 }
 
 /**

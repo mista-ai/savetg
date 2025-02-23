@@ -22,14 +22,31 @@
   "options_page": "pages/options.html",
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "css": ["src/content/content.css"],
-      "js": ["src/content/content.js"]
+      "matches": [
+        "<all_urls>"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "js": [
+        "content.js"
+      ]
     }
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "libs/idb.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
