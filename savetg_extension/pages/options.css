@@ -161,3 +161,55 @@ button:hover {
   background-color: #cc0000;
   transform: scale(1.1);
 }
+
+/* Общие стили для таблицы */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Стили для заголовков таблицы */
+.history-table th {
+    border: 1px solid #ccc;
+    padding: 5px;
+    background-color: #f4f4f4;
+    text-align: left;
+}
+
+/* Стили для ячеек таблицы */
+.history-table td {
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+
+/* Стили для ссылок */
+.history-table a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.history-table a:hover {
+    text-decoration: underline;
+}
+
+/* Стили для кнопки удаления */
+.delete-button {
+    cursor: pointer;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s ease;
+}
+
+.delete-button:hover {
+    background-color: #cc0000;
+    transform: scale(1.1);
+}
+
+.delete-button:active {
+    transform: scale(1);
+}

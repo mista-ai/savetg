@@ -260,14 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // 🔹 Adding the Refresh button
     const refreshHistoryBtn = document.createElement('button');
     refreshHistoryBtn.textContent = 'Refresh';
-    refreshHistoryBtn.style.marginLeft = '10px';
-    refreshHistoryBtn.style.backgroundColor = '#007bff';
-    refreshHistoryBtn.style.color = 'white';
-    refreshHistoryBtn.style.padding = '5px 10px';
-    refreshHistoryBtn.style.border = 'none';
-    refreshHistoryBtn.style.borderRadius = '4px';
-    refreshHistoryBtn.style.cursor = 'pointer';
-    refreshHistoryBtn.style.fontSize = '14px';
+    refreshHistoryBtn.id = 'refreshHistoryBtn'
 
     // Add the Refresh button to the History section
     historyPage.insertBefore(refreshHistoryBtn, historyList);
@@ -344,7 +337,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    // 🚀 Function to load teleport history
     async function loadHistory() {
         historyList.innerHTML = '';
 
@@ -356,30 +348,24 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const table = document.createElement('table');
-        table.style.width = "100%";
-        table.style.borderCollapse = "collapse";
+        table.classList.add('history-table');
 
-        // Table header
+        // Заголовок таблицы
         const headerRow = document.createElement('tr');
         ['Image Link', 'Chat Name', 'Msg Number', 'Actions'].forEach(text => {
             const th = document.createElement('th');
             th.textContent = text;
-            th.style.border = "1px solid #ccc";
-            th.style.padding = "5px";
             headerRow.appendChild(th);
         });
         table.appendChild(headerRow);
 
-        // Iterating over teleport history to display data
+        // Заполнение таблицы данными из истории
         Object.entries(teleport_history).forEach(([rawLink, chatObj]) => {
             Object.entries(chatObj).forEach(([chat_id, tgLink], index) => {
                 const row = document.createElement('tr');
-                row.style.border = "1px solid #ccc";
 
                 if (index === 0) {
                     const tdImage = document.createElement('td');
-                    tdImage.style.border = "1px solid #ccc";
-                    tdImage.style.padding = "5px";
                     tdImage.rowSpan = Object.entries(chatObj).length;
                     const imageAnchor = document.createElement('a');
                     imageAnchor.href = rawLink;
@@ -389,20 +375,16 @@ document.addEventListener('DOMContentLoaded', function () {
                     row.appendChild(tdImage);
                 }
 
-                // Get chat_name from bot_dict based on chat_id
+                // Получение имени чата из bot_dict
                 chrome.storage.sync.get(['bot_dict'], function (data) {
                     const bot_dict = data.bot_dict || {};
                     const chat_name = Object.keys(bot_dict).find(name => bot_dict[name] === chat_id);
 
                     const tdChat = document.createElement('td');
-                    tdChat.style.border = "1px solid #ccc";
-                    tdChat.style.padding = "5px";
                     tdChat.textContent = chat_name || `Unknown chat (${chat_id})`;
                     row.appendChild(tdChat);
 
                     const tdMsg = document.createElement('td');
-                    tdMsg.style.border = "1px solid #ccc";
-                    tdMsg.style.padding = "5px";
                     const messageLink = document.createElement('a');
                     messageLink.href = tgLink;
                     messageLink.textContent = "message_link";
@@ -410,33 +392,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     tdMsg.appendChild(messageLink);
                     row.appendChild(tdMsg);
 
-                    // 🔹 Добавляем кнопку удаления
+                    // 🔹 Кнопка удаления
                     const tdAction = document.createElement('td');
-                    tdAction.style.border = "1px solid #ccc";
-                    tdAction.style.padding = "5px";
 
-                    // Создаем кнопку
                     const deleteButton = document.createElement('button');
-                    deleteButton.innerHTML = "&#10006;"; // Юникод для ❌ (красивый крестик)
-                    deleteButton.style.cursor = "pointer";
-                    deleteButton.style.backgroundColor = "#ff4d4d"; // Более мягкий красный
-                    deleteButton.style.color = "white";
-                    deleteButton.style.border = "none";
-                    deleteButton.style.padding = "6px 12px";
-                    deleteButton.style.borderRadius = "8px";
-                    deleteButton.style.fontSize = "14px";
-                    deleteButton.style.fontWeight = "bold";
-                    deleteButton.style.transition = "background-color 0.3s, transform 0.2s ease";
+                    deleteButton.innerHTML = "&#10006;"; // ❌
+                    deleteButton.classList.add('delete-button');
 
-                    // Добавляем эффект наведения
-                    deleteButton.onmouseover = function () {
-                        deleteButton.style.backgroundColor = "#cc0000";
-                        deleteButton.style.transform = "scale(1.1)";
-                    };
-                    deleteButton.onmouseleave = function () {
-                        deleteButton.style.backgroundColor = "#ff4d4d";
-                        deleteButton.style.transform = "scale(1)";
-                    };
                     deleteButton.onclick = async function () {
                         if (confirm("Are you sure you want to delete this message from history?")) {
                             await deleteTeleportHistoryEntry(rawLink, chat_id);
@@ -454,6 +416,7 @@ document.addEventListener('DOMContentLoaded', function () {
         historyList.appendChild(table);
     }
 
+
     // 🚀 Функция удаления записи через background.js
     async function deleteTeleportHistoryEntry(rawLink, chatId) {
         return new Promise((resolve) => {
@@ -470,4 +433,115 @@ document.addEventListener('DOMContentLoaded', function () {
             loadHistory();
         }
     });
+
+    // 🔍 Поиск по истории
+    const searchHistoryInput = document.getElementById('searchHistoryInput');
+    const searchHistoryBtn = document.getElementById('searchHistoryBtn');
+    const searchHistoryResult = document.getElementById('searchHistoryResult');
+
+    // Функция поиска по teleport_history
+    async function searchTeleportHistory() {
+        const inputValue = searchHistoryInput.value.trim();
+        if (!inputValue) {
+            alert("Enter a media link to search.");
+            return;
+        }
+
+        // Очистка результатов перед новым поиском
+        searchHistoryResult.innerHTML = '';
+
+        // Преобразуем ссылку: оставляем только основной URL без параметров
+        const cleanUrl = inputValue.split("?")[0].split(",")[0];
+
+        // Получаем teleport_history
+        let teleport_history = await getTeleportHistory();
+
+        // Фильтруем по совпадению ссылки
+        let foundEntries = {};
+        Object.entries(teleport_history).forEach(([rawLink, chatObj]) => {
+            const linkWithoutParams = rawLink.split("?")[0].split(",")[0];
+            if (linkWithoutParams === cleanUrl) {
+                foundEntries[rawLink] = chatObj;
+            }
+        });
+
+        // Если ничего не найдено
+        if (Object.keys(foundEntries).length === 0) {
+            searchHistoryResult.innerHTML = "<p>No matches found.</p>";
+            return;
+        }
+
+        // Создание таблицы с результатами
+        const table = document.createElement('table');
+        table.classList.add('history-table');
+
+        // Заголовок таблицы
+        const headerRow = document.createElement('tr');
+        ['Image Link', 'Chat Name', 'Msg Number', 'Actions'].forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            headerRow.appendChild(th);
+        });
+        table.appendChild(headerRow);
+
+        // Заполняем таблицу результатами поиска
+        Object.entries(foundEntries).forEach(([rawLink, chatObj]) => {
+            Object.entries(chatObj).forEach(([chat_id, tgLink], index) => {
+                const row = document.createElement('tr');
+
+                if (index === 0) {
+                    const tdImage = document.createElement('td');
+                    tdImage.rowSpan = Object.entries(chatObj).length;
+                    const imageAnchor = document.createElement('a');
+                    imageAnchor.href = rawLink;
+                    imageAnchor.textContent = rawLink;
+                    imageAnchor.target = "_blank";
+                    tdImage.appendChild(imageAnchor);
+                    row.appendChild(tdImage);
+                }
+
+                // Получаем имя чата
+                chrome.storage.sync.get(['bot_dict'], function (data) {
+                    const bot_dict = data.bot_dict || {};
+                    const chat_name = Object.keys(bot_dict).find(name => bot_dict[name] === chat_id);
+
+                    const tdChat = document.createElement('td');
+                    tdChat.textContent = chat_name || `Unknown chat (${chat_id})`;
+                    row.appendChild(tdChat);
+
+                    const tdMsg = document.createElement('td');
+                    const messageLink = document.createElement('a');
+                    messageLink.href = tgLink;
+                    messageLink.textContent = "message_link";
+                    messageLink.target = "_blank";
+                    tdMsg.appendChild(messageLink);
+                    row.appendChild(tdMsg);
+
+                    // 🔹 Кнопка удаления
+                    const tdAction = document.createElement('td');
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.innerHTML = "&#10006;"; // ❌
+                    deleteButton.classList.add('delete-button');
+
+                    deleteButton.onclick = async function () {
+                        if (confirm("Are you sure you want to delete this message from history?")) {
+                            await deleteTeleportHistoryEntry(rawLink, chat_id);
+                            searchTeleportHistory(); // Обновить результаты поиска
+                        }
+                    };
+                    tdAction.appendChild(deleteButton);
+                    row.appendChild(tdAction);
+
+                    table.appendChild(row);
+                });
+            });
+        });
+
+        searchHistoryResult.appendChild(table);
+    }
+
+    // Навешиваем обработчик на кнопку поиска
+    searchHistoryBtn.addEventListener('click', searchTeleportHistory);
+
 });
