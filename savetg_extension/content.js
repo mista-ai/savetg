@@ -5,7 +5,8 @@ let extensionEnabled = false;
 let botDict = {};
 // Global variable for button placement (default: top-left)
 let buttonPlacement = 'top-left';
-//let apiUrl = "http://localhost:5000"
+//let apiUrl = "https://teleporter-93407217899.europe-west1.run.app"
+let apiUrl = "http://localhost:5000"
 
 
 // Load necessary values once
@@ -436,6 +437,22 @@ async function setTeleportHistory(data) {
     });
 }
 
+// 🚀 Request teleport history from background.js
+async function getTeleportHistory() {
+    return new Promise((resolve) => {
+        // Sending a message to background.js to get the teleport history
+        chrome.runtime.sendMessage({ action: "getTeleportHistory" }, resolve);
+    });
+}
+
+// 🚀 Save teleport history to background.js
+async function setTeleportHistory(data) {
+    return new Promise((resolve) => {
+        // Sending a message to background.js to set the updated teleport history
+        chrome.runtime.sendMessage({ action: "setTeleportHistory", data }, resolve);
+    });
+}
+
 // 🚀 Main function to send media
 window.sendMediaWithText = async function sendMediaWithText(mediaUrl, chatId, msgText) {
     const raw_link = parseRawLink(mediaUrl);  // Get the raw_link for use as the key
@@ -451,8 +468,8 @@ window.sendMediaWithText = async function sendMediaWithText(mediaUrl, chatId, ms
             // Send a POST request to the server to fetch and send media to Telegram
             fetch("http://localhost:5000/fetch_and_send_to_telegram", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({media_url: mediaUrl, chat_id: chatId, msg_text: msgText}),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ media_url: mediaUrl, chat_id: chatId, msg_text: msgText }),
             })
                 .then((response) => response.json())  // Parse the response as JSON
                 .then(async (result) => {
