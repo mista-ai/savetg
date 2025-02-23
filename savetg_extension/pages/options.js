@@ -50,9 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveHistoryBtn = document.getElementById('saveHistoryBtn');
 
     // 🔹 Adding the Refresh button
-    const refreshHistoryBtn = document.createElement('button');
-    refreshHistoryBtn.textContent = 'Refresh';
-    refreshHistoryBtn.id = 'refreshHistoryBtn'
+    const refreshHistoryBtn = document.getElementById('refreshHistoryBtn');
 
     // Add the Refresh button to the History section
     historyPage.insertBefore(refreshHistoryBtn, historyList);
@@ -105,11 +103,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const paginationContainer = document.createElement('div'); // Контейнер для пагинации
     const toggleHistoryBtn = document.createElement('button'); // Кнопка скрытия истории
-    toggleHistoryBtn.textContent = "Hide History";
+    toggleHistoryBtn.textContent = "Show History";
     toggleHistoryBtn.classList.add('toggle-history-btn');
 
     // Добавляем кнопку скрытия перед историей
     historyPage.insertBefore(toggleHistoryBtn, historyList);
+    historyPage.insertBefore(refreshHistoryBtn, historyList);
 
     // Добавляем контейнер пагинации в страницу
     paginationContainer.classList.add('pagination-container');
@@ -276,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 🔹 Функция скрытия/показа истории
     toggleHistoryBtn.addEventListener('click', function () {
+        refreshHistoryBtn.classList.toggle('hidden')
         historyList.classList.toggle('hidden');
         paginationContainer.classList.toggle('hidden');
         toggleHistoryBtn.textContent = historyList.classList.contains('hidden') ? "Show History" : "Hide History";

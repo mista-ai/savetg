@@ -38,7 +38,7 @@
 
     <h4>Saved Chats</h4>
     <button id="toggleSavedChats">Show/Hide Saved Chats</button>
-    <div id="chatListContainer">
+    <div id="chatListContainer" class="hidden-block">
         <div id="chatList"></div>
     </div>
 
@@ -92,7 +92,7 @@
     <h3>Stored Data</h3>
     <h4>Channels (bot_dict)</h4>
     <button id="toggleBotDict">Show/Hide Channels</button>
-    <div id="botDictContainer"></div>
+    <div id="botDictContainer" class="hidden-block"></div>
     <div id="dataList"></div>
     <button id="clearData">Clear All Data</button>
 </div>
@@ -111,7 +111,9 @@
         <button id="searchHistoryBtn">Find</button>
         <div id="searchHistoryResult"></div>
     </div>
-    <div id="historyList"></div>
+    <div id="historyList" class="hidden">
+        <button id="refreshHistoryBtn" class="hidden">Refresh</button>
+    </div>
 </div>
 
 <script type="module" src="options.js"></script>
