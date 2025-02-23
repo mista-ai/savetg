@@ -5,6 +5,8 @@ let extensionEnabled = false;
 let botDict = {};
 // Global variable for button placement (default: top-left)
 let buttonPlacement = 'top-left';
+let apiUrl = "https://teleporter-93407217899.europe-west1.run.app"
+
 
 // Load necessary values once
 chrome.storage.sync.get(['extensionEnabled', 'bot_dict', 'buttonPlacement'], function (data) {
@@ -446,7 +448,7 @@ window.sendMediaWithText = async function sendMediaWithText(mediaUrl, chatId, ms
         if (!shouldSave || !(raw_link in teleport_history && chatId in teleport_history[raw_link])) {
             console.log(`📤 Sending media: ${mediaUrl} to chat: ${chatId} with text: "${msgText}"`);
 
-            fetch("http://localhost:5000/fetch_and_send_to_telegram", {
+            fetch("${apiUrl}/fetch_and_send_to_telegram", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ media_url: mediaUrl, chat_id: chatId, msg_text: msgText }),
