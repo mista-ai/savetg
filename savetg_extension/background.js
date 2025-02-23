@@ -21,6 +21,26 @@ async function getTeleportHistory() {
     return (await db.get(storeName, "teleport_history")) || {};
 }
 
+// Delete a specific entry from teleport history
+async function deleteTeleportHistoryEntry(rawLink, chatId) {
+    const db = await initDB();
+    let existingHistory = (await db.get(storeName, "teleport_history")) || {};
+
+    if (existingHistory[rawLink] && existingHistory[rawLink][chatId]) {
+        delete existingHistory[rawLink][chatId];
+
+        // Если после удаления chatId объект пуст, удаляем всю запись rawLink
+        if (Object.keys(existingHistory[rawLink]).length === 0) {
+            delete existingHistory[rawLink];
+        }
+
+        await db.put(storeName, existingHistory, "teleport_history");
+        return { success: true };
+    }
+
+    return { success: false, error: "Entry not found" };
+}
+
 // Set teleport history
 async function setTeleportHistory(newHistory) {
     const db = await initDB();
@@ -61,11 +81,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
 
-    if (message.action === "refreshContextMenus") {
-        // Redrawing context menu
-        refreshContextMenus();
-        sendResponse({ success: true });
+    if (message.action === "deleteTeleportHistoryEntry") {
+        deleteTeleportHistoryEntry(message.rawLink, message.chatId).then(sendResponse);
+        return true;
     }
+
+//    if (message.action === "refreshContextMenus") {
+//        // Redrawing context menu
+//        refreshContextMenus();
+//        sendResponse({ success: true });
+//    }
 });
 
 

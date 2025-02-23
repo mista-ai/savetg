@@ -91,3 +91,73 @@ button:hover {
 .history-controls button {
   margin-right: 5px;
 }
+
+/* Кнопка Refresh (Обновить) */
+#refreshHistoryBtn {
+  margin-left: 10px;
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#refreshHistoryBtn:hover {
+  background-color: #0056b3;
+}
+
+/* Button Save History */
+#saveHistoryBtn {
+  background-color: #28a745;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#saveHistoryBtn.dont-save {
+  background-color: #dc3545; /* When history is not saved */
+}
+
+
+/* Таблица истории */
+#historyList table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Заголовки таблицы */
+#historyList th {
+  border: 1px solid #ccc;
+  padding: 5px;
+  background-color: #f2f2f2;
+  font-weight: bold;
+  text-align: left;
+}
+
+/* Ячейки таблицы */
+#historyList td {
+  border: 1px solid #ccc;
+  padding: 5px;
+}
+
+/* Кнопка удаления */
+.delete-history-btn {
+  cursor: pointer;
+  background-color: #ff4d4d; /* Более мягкий красный */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s ease;
+}
+
+/* Эффект наведения */
+.delete-history-btn:hover {
+  background-color: #cc0000;
+  transform: scale(1.1);
+}
