@@ -86,8 +86,12 @@ class TelegramBot:
         # Key for media: 'photo', 'animation', 'video', or 'document'
         media_key = method.split("send")[-1].lower()
         return await self.send_request(
-            method,
-            {"chat_id": chat_id, media_key: media_url, "caption": caption}
+            method,{
+                "chat_id": chat_id,
+                media_key: media_url,
+                "caption": caption,
+                "parse_mode": "MarkdownV2"
+            }
         )
 
     @staticmethod

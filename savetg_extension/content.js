@@ -171,9 +171,15 @@ function showTextEditorPanel(mediaUrl, chatId) {
     let formatButtonsContainer = document.createElement('div');
     formatButtonsContainer.style.marginTop = '10px';
 
-    const formatting = [{symbol: '*', label: 'Bold'}, {symbol: '_', label: 'Italic'}, {
-        symbol: '`', label: 'Code'
-    }, {symbol: '~', label: 'Strikethrough'}];
+    const formatting = [
+        {symbol: '**', label: 'Bold'},
+        {symbol: '_', label: 'Italic'},
+        {symbol: '__', label: 'Underline'},
+        {symbol: '~~', label: 'Strikethrough'},
+        {symbol: '`', label: 'Monospace'},
+        {symbol: '```', label: 'Code'}
+    ];
+
 
     formatting.forEach(item => {
         let btn = document.createElement('button');

@@ -186,14 +186,14 @@ function refreshContextMenus() {
             if (lastChatId && lastChatName) {
 
                 chrome.contextMenus.create({
-                    id: `last-sendDirect-${lastChatId}`,
+                    id: `last-sendDirect-${lastChatName}`,
                     title: `🚀 ${lastChatName}`,
                     parentId: "sendSubmenu",
                     contexts: ["image", "video"]
                 });
 
                 chrome.contextMenus.create({
-                    id: `last-sendWithText-${lastChatId}`,
+                    id: `last-sendWithText-${lastChatName}`,
                     title: `🚀 ${lastChatName}`,
                     parentId: "sendWithTextSubmenu",
                     contexts: ["image", "video"]
