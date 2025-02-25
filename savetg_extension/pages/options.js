@@ -625,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <option value="import">Import JSON</option>
             <option value="export">Export JSON</option>
         </select>
-        <input type="file" id="historyJsonFileInput" class="hidden" accept="application/json">
+        <input type="file" id="historyJsonFileInput" accept="application/json">
         <button id="processHistoryJson">Execute</button>
     `;
     historyPage.appendChild(historyJsonBlock);
@@ -639,44 +639,41 @@ document.addEventListener('DOMContentLoaded', function () {
         const fileInput = document.getElementById('historyJsonFileInput');
 
         if (mode === 'import') {
-            fileInput.click();
-            fileInput.onchange = function (event) {
-                const file = event.target.files[0];
-                if (!file) return;
+            if (fileInput.files.length === 0) {
+                alert("Please select a JSON file to import.");
+                return;
+            }
 
-                const reader = new FileReader();
-                reader.onload = async function (e) {
-                    try {
-                        const importData = JSON.parse(e.target.result);
-                        if (!Array.isArray(importData)) throw new Error("Invalid JSON format");
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async function (e) {
+                try {
+                    const importData = JSON.parse(e.target.result);
+                    if (typeof importData !== 'object' || importData === null) throw new Error("Invalid JSON format");
 
-                        let currentHistory = await getTeleportHistory();
-                        importData.forEach(({imageLink, chatId, msgNumber}) => {
-                            if (!currentHistory[imageLink]) {
-                                currentHistory[imageLink] = {};
-                            }
+                    let currentHistory = await getTeleportHistory();
+                    Object.entries(importData).forEach(([imageLink, chatData]) => {
+                        if (!currentHistory[imageLink]) {
+                            currentHistory[imageLink] = {};
+                        }
+                        Object.entries(chatData).forEach(([chatId, msgNumber]) => {
                             currentHistory[imageLink][chatId] = msgNumber;
                         });
+                    });
 
-                        chrome.runtime.sendMessage({action: "setTeleportHistory", history: currentHistory}, () => {
-                            alert("History Imported Successfully!");
-                            loadHistory();
-                        });
-                    } catch (error) {
-                        alert("Invalid JSON format. Ensure it's a list of objects with 'imageLink', 'chatId', and 'msgNumber'.");
-                    }
-                };
-                reader.readAsText(file);
+                    chrome.runtime.sendMessage({ action: "setTeleportHistory", history: currentHistory }, () => {
+                        alert("History Imported Successfully!");
+                        loadHistory();
+                    });
+                } catch (error) {
+                    alert("Invalid JSON format. Ensure it matches the teleport_history structure.");
+                }
             };
+            reader.readAsText(file);
         } else if (mode === 'export') {
             let teleportHistory = await getTeleportHistory();
-            const exportData = Object.entries(teleportHistory).flatMap(([imageLink, chatData]) => Object.entries(chatData).map(([chatId, msgNumber]) => ({
-                imageLink,
-                chatId,
-                msgNumber
-            })));
 
-            const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+            const blob = new Blob([JSON.stringify(teleportHistory, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'teleport_history.json';
