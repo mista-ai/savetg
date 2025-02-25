@@ -86,11 +86,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
 
-//    if (message.action === "refreshContextMenus") {
-//        // Redrawing context menu
-//        refreshContextMenus();
-//        sendResponse({ success: true });
-//    }
+   if (message.action === "refreshContextMenus") {
+       // Redrawing context menu
+       refreshContextMenus();
+       sendResponse({ success: true });
+   }
 });
 
 
