@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
     historyPage.insertBefore(refreshHistoryBtn, historyList);
 
 
-    // 🔍 Поиск по истории
+    // 🔍 Search history
     const searchHistoryInput = document.getElementById('searchHistoryInput');
     const searchHistoryBtn = document.getElementById('searchHistoryBtn');
     const searchHistoryResult = document.getElementById('searchHistoryResult');
@@ -71,10 +71,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const botDictContainer = document.getElementById('botDictContainer');
 
-    // Загрузка Channels (bot_dict) с возможностью скрытия
+    // Load Channels (bot_dict) with the ability to hide
     chrome.storage.sync.get(['bot_dict'], function (data) {
         const bot_dict = data.bot_dict || {};
-        botDictContainer.innerHTML = ''; // Очищаем перед обновлением
+        botDictContainer.innerHTML = ''; // Clear before updating
 
         for (const [chatName, chatId] of Object.entries(bot_dict)) {
             const item = document.createElement('div');
@@ -98,19 +98,19 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     let currentPage = 1;
-    let itemsPerPage = 5; // Количество элементов на странице
-    let teleportHistory = {}; // Глобальная переменная для хранения истории
+    let itemsPerPage = 5; // Number of items per page
+    let teleportHistory = {}; // Global variable for storing history
 
-    const paginationContainer = document.createElement('div'); // Контейнер для пагинации
-    const toggleHistoryBtn = document.createElement('button'); // Кнопка скрытия истории
+    const paginationContainer = document.createElement('div'); // Container for pagination
+    const toggleHistoryBtn = document.createElement('button'); // Button to hide history
     toggleHistoryBtn.textContent = "Show History";
     toggleHistoryBtn.classList.add('toggle-history-btn');
 
-    // Добавляем кнопку скрытия перед историей
+    // Add the toggle button before the history
     historyPage.insertBefore(toggleHistoryBtn, historyList);
     historyPage.insertBefore(refreshHistoryBtn, historyList);
 
-    // Добавляем контейнер пагинации в страницу
+    // Add the pagination container to the page
     paginationContainer.classList.add('pagination-container');
     historyPage.appendChild(paginationContainer);
 
@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadSaveHistoryState();
     });
 
-    // Навешиваем обработчик на кнопку поиска
+    // Attach a handler to the search button
     searchHistoryBtn.addEventListener('click', searchTeleportHistory);
 
     toggleSavedChatsBtn.addEventListener('click', function () {
@@ -273,9 +273,9 @@ document.addEventListener('DOMContentLoaded', function () {
         botDictContainer.classList.toggle('hidden-block');
     });
 
-    // 🔹 Функция скрытия/показа истории
+    // 🔹 Function to hide/show history
     toggleHistoryBtn.addEventListener('click', function () {
-        refreshHistoryBtn.classList.toggle('hidden')
+        refreshHistoryBtn.classList.toggle('hidden');
         historyList.classList.toggle('hidden');
         paginationContainer.classList.toggle('hidden');
         toggleHistoryBtn.textContent = historyList.classList.contains('hidden') ? "Show History" : "Hide History";
@@ -290,17 +290,24 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     chrome.storage.local.get(["searchQuery"], (result) => {
-        // Переключаемся на вкладку "History" (отображаем ее, скрывая другие)
+        // Switch to the "History" tab (show it while hiding others)
         settingsPage.classList.add('hidden');
         faqPage.classList.add('hidden');
         buttonPositionPage.classList.add('hidden');
         dataPage.classList.add('hidden');
-        historyPage.classList.remove('hidden'); // Показываем историю!
+        historyPage.classList.remove('hidden'); // Show history!
 
-        if (result.searchQuery) {
-            searchTeleportHistory(result.searchQuery)
-                .then(() => chrome.storage.local.remove("searchQuery")) // Удаляем searchQuery после завершения
-                .catch(console.error); // Ловим возможные ошибки
+        try {
+            if (result.searchQuery) {
+                searchTeleportHistory(result.searchQuery)
+                    .then(() => chrome.storage.local.remove("searchQuery")) // Remove searchQuery after completion
+                    .catch(console.error); // Catch potential errors
+            }
+        } catch (error) {
+            console.error("Error while searching history:", error);
+        } finally {
+            // Remove searchQuery regardless of the result
+            chrome.storage.local.remove("searchQuery");
         }
     });
 
@@ -360,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function () {
             lastDiv.innerHTML = '<h4>Last Chat</h4>';
 
             if (lastChatId) {
-                // Получаем имя чата из bot_dict по lastChatId
+                // Retrieve the chat name from bot_dict using lastChatId
                 chrome.storage.sync.get(['bot_dict'], function (botData) {
                     const bot_dict = botData.bot_dict || {};
                     const chatName = Object.keys(bot_dict).find(name => bot_dict[name] === lastChatId);
@@ -410,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const table = document.createElement('table');
         table.classList.add('history-table');
 
-        // Заголовок таблицы
+        // Table header
         const headerRow = document.createElement('tr');
         ['Image Link', 'Chat Name', 'Msg Number', 'Actions'].forEach(text => {
             const th = document.createElement('th');
@@ -419,12 +426,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         table.appendChild(headerRow);
 
-        // Заполнение таблицы данными
+        // Filling the table with data
         for (const [rawLink, chatObj] of entries) {
             for (const [chat_id, tgLink] of Object.entries(chatObj)) {
                 const row = document.createElement('tr');
 
-                // Первая строка с изображением объединяет несколько строк
+                // The first row with the image spans multiple rows
                 if (Object.keys(chatObj).indexOf(chat_id) === 0) {
                     const tdImage = document.createElement('td');
                     tdImage.rowSpan = Object.entries(chatObj).length;
@@ -436,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     row.appendChild(tdImage);
                 }
 
-                // Получаем имя чата из хранилища
+                // Retrieve the chat name from storage
                 const bot_dict = await new Promise(resolve => {
                     chrome.storage.sync.get(['bot_dict'], function (data) {
                         resolve(data.bot_dict || {});
@@ -457,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 tdMsg.appendChild(messageLink);
                 row.appendChild(tdMsg);
 
-                // 🔹 Кнопка удаления
+                // 🔹 Delete button
                 const tdAction = document.createElement('td');
                 const deleteButton = document.createElement('button');
                 deleteButton.innerHTML = "&#10006;"; // ❌
@@ -466,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 deleteButton.onclick = async function () {
                     if (confirm("Are you sure you want to delete this message from history?")) {
                         await deleteTeleportHistoryEntry(rawLink, chat_id);
-                        refreshCallback(); // Обновить список после удаления
+                        refreshCallback(); // Refresh the list after deletion
                     }
                 };
 
@@ -480,51 +487,51 @@ document.addEventListener('DOMContentLoaded', function () {
         container.appendChild(table);
     }
 
-    // Функция поиска по teleport_history
+    // Function for searching in teleport_history
     async function searchTeleportHistory(mediaUrl = null) {
         let cleanUrl;
 
         if (typeof mediaUrl !== "string" || !mediaUrl.trim()) {
-            // Проверяем, что элемент существует
+            // Check if the element exists
             if (!searchHistoryInput || !searchHistoryInput.value.trim()) {
                 alert("Enter a media link to search.");
                 return;
             }
-            // Преобразуем ссылку из input
+            // Process the link from input
             cleanUrl = searchHistoryInput.value.trim().split("?")[0].split(",")[0];
         } else {
-            // Используем mediaUrl, если он передан
+            // Use mediaUrl if it is provided
             cleanUrl = mediaUrl.split("?")[0].split(",")[0];
         }
 
-        console.log("Searching for:", cleanUrl); // 🔍 Проверяем, какое значение ищем
+        console.log("Searching for:", cleanUrl); // 🔍 Check what value is being searched
 
-        // Очистка результатов перед новым поиском
+        // Clear results before a new search
         searchHistoryResult.innerHTML = '';
 
-        // Получаем teleport_history
+        // Retrieve teleport_history
         let teleport_history = await getTeleportHistory();
 
-        console.log("Teleport history:", teleport_history); // 🔍 Проверяем, что получили историю
+        console.log("Teleport history:", teleport_history); // 🔍 Check the received history
 
-        // Фильтруем по совпадению ссылки
+        // Filter by matching link
         let foundEntries = Object.entries(teleport_history).filter(([rawLink]) => {
             return rawLink.split("?")[0].split(",")[0] === cleanUrl;
         });
 
-        console.log("Found entries:", foundEntries); // 🔍 Проверяем, что нашли
+        console.log("Found entries:", foundEntries); // 🔍 Check what is found
 
         if (foundEntries.length === 0) {
             searchHistoryResult.innerHTML = "<p>No matches found.</p>";
             return;
         }
 
-        // Генерируем таблицу
+        // Generate a table
         await generateHistoryTable(foundEntries, searchHistoryResult, searchTeleportHistory);
     }
 
 
-    // 🚀 Функция загрузки истории с пагинацией
+    // 🚀 Function for loading history with pagination
     async function loadHistory(page = 1) {
         historyList.innerHTML = '';
         currentPage = page;
@@ -540,21 +547,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const totalItems = entries.length;
         const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-        // Ограничение по страницам
+        // Page limits
         if (currentPage > totalPages) currentPage = totalPages;
         if (currentPage < 1) currentPage = 1;
 
-        // Фильтруем данные по текущей странице
+        // Filter data by the current page
         const startIndex = (currentPage - 1) * itemsPerPage;
         const paginatedEntries = entries.slice(startIndex, startIndex + itemsPerPage);
 
-        // Генерируем таблицу
+        // Generate a table
         await generateHistoryTable(paginatedEntries, historyList, () => loadHistory(currentPage));
 
         updatePagination(totalPages);
     }
 
-    // 🔹 Функция обновления пагинации
+    // 🔹 Function to update pagination
     function updatePagination(totalPages) {
         paginationContainer.innerHTML = '';
 
@@ -575,21 +582,21 @@ document.addEventListener('DOMContentLoaded', function () {
         paginationContainer.appendChild(nextButton);
     }
 
-    // 🚀 Запрос истории
+    // 🚀 Request history
     async function getTeleportHistory() {
         return new Promise((resolve) => {
             chrome.runtime.sendMessage({action: "getTeleportHistory"}, resolve);
         });
     }
 
-    // 🚀 Удаление записи
+    // 🚀 Delete history entry
     async function deleteTeleportHistoryEntry(rawLink, chatId) {
         return new Promise((resolve) => {
             chrome.runtime.sendMessage({action: "deleteTeleportHistoryEntry", rawLink, chatId}, resolve);
         });
     }
 
-    // Запуск загрузки истории при открытии страницы
+    // Start loading history when the page is opened
     document.getElementById('openHistory').addEventListener('click', function () {
         historyPage.classList.remove('hidden');
         loadHistory();
