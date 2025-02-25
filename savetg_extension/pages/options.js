@@ -290,23 +290,30 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     chrome.storage.local.get(["searchQuery"], (result) => {
-        // Switch to the "History" tab (show it while hiding others)
-        settingsPage.classList.add('hidden');
-        faqPage.classList.add('hidden');
-        buttonPositionPage.classList.add('hidden');
-        dataPage.classList.add('hidden');
-        historyPage.classList.remove('hidden'); // Show history!
-
         try {
             if (result.searchQuery) {
+                // Скрываем все страницы, кроме History
+                settingsPage.classList.add('hidden');
+                faqPage.classList.add('hidden');
+                buttonPositionPage.classList.add('hidden');
+                dataPage.classList.add('hidden');
+                historyPage.classList.remove('hidden'); // Показываем историю
+
                 searchTeleportHistory(result.searchQuery)
-                    .then(() => chrome.storage.local.remove("searchQuery")) // Remove searchQuery after completion
-                    .catch(console.error); // Catch potential errors
+                    .then(() => chrome.storage.local.remove("searchQuery")) // Удаляем searchQuery после завершения
+                    .catch(console.error); // Обрабатываем возможные ошибки
+            } else {
+                // Если searchQuery нет, показываем "Chats" по умолчанию
+                settingsPage.classList.remove('hidden');
+                faqPage.classList.add('hidden');
+                buttonPositionPage.classList.add('hidden');
+                dataPage.classList.add('hidden');
+                historyPage.classList.add('hidden');
             }
         } catch (error) {
             console.error("Error while searching history:", error);
         } finally {
-            // Remove searchQuery regardless of the result
+            // Удаляем searchQuery в любом случае
             chrome.storage.local.remove("searchQuery");
         }
     });
@@ -600,5 +607,82 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('openHistory').addEventListener('click', function () {
         historyPage.classList.remove('hidden');
         loadHistory();
+    });
+
+
+    // 🔹 Import/Export History Elements
+    const importExportHistoryBtn = document.createElement('button');
+    importExportHistoryBtn.textContent = "Import/Export History";
+    importExportHistoryBtn.id = "importExportHistoryBtn";
+    historyPage.insertBefore(importExportHistoryBtn, historyList);
+
+    const historyJsonBlock = document.createElement('div');
+    historyJsonBlock.id = "historyJsonBlock";
+    historyJsonBlock.classList.add('hidden');
+    historyJsonBlock.innerHTML = `
+        <h4>Import/Export Teleport History</h4>
+        <select id="historyJsonMode">
+            <option value="import">Import JSON</option>
+            <option value="export">Export JSON</option>
+        </select>
+        <input type="file" id="historyJsonFileInput" class="hidden" accept="application/json">
+        <button id="processHistoryJson">Execute</button>
+    `;
+    historyPage.appendChild(historyJsonBlock);
+
+    importExportHistoryBtn.addEventListener('click', function () {
+        historyJsonBlock.classList.toggle('hidden');
+    });
+
+    document.getElementById('processHistoryJson').addEventListener('click', async function () {
+        const mode = document.getElementById('historyJsonMode').value;
+        const fileInput = document.getElementById('historyJsonFileInput');
+
+        if (mode === 'import') {
+            fileInput.click();
+            fileInput.onchange = function (event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = async function (e) {
+                    try {
+                        const importData = JSON.parse(e.target.result);
+                        if (!Array.isArray(importData)) throw new Error("Invalid JSON format");
+
+                        let currentHistory = await getTeleportHistory();
+                        importData.forEach(({imageLink, chatId, msgNumber}) => {
+                            if (!currentHistory[imageLink]) {
+                                currentHistory[imageLink] = {};
+                            }
+                            currentHistory[imageLink][chatId] = msgNumber;
+                        });
+
+                        chrome.runtime.sendMessage({action: "setTeleportHistory", history: currentHistory}, () => {
+                            alert("History Imported Successfully!");
+                            loadHistory();
+                        });
+                    } catch (error) {
+                        alert("Invalid JSON format. Ensure it's a list of objects with 'imageLink', 'chatId', and 'msgNumber'.");
+                    }
+                };
+                reader.readAsText(file);
+            };
+        } else if (mode === 'export') {
+            let teleportHistory = await getTeleportHistory();
+            const exportData = Object.entries(teleportHistory).flatMap(([imageLink, chatData]) => Object.entries(chatData).map(([chatId, msgNumber]) => ({
+                imageLink,
+                chatId,
+                msgNumber
+            })));
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'teleport_history.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
     });
 });
