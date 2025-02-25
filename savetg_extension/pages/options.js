@@ -318,6 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+
     // Function to load the save history state
     function loadSaveHistoryState() {
         chrome.storage.sync.get(['save_history'], function (data) {
@@ -609,77 +610,56 @@ document.addEventListener('DOMContentLoaded', function () {
         loadHistory();
     });
 
+    // Функция экспорта истории в JSON-файл
+    function exportTeleportHistory() {
+        chrome.runtime.sendMessage({action: "getTeleportHistory"}, function (history) {
+            const jsonStr = JSON.stringify(history, null, 2);
+            const blob = new Blob([jsonStr], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
 
-    // 🔹 Import/Export History Elements
-    const importExportHistoryBtn = document.createElement('button');
-    importExportHistoryBtn.textContent = "Import/Export History";
-    importExportHistoryBtn.id = "importExportHistoryBtn";
-    historyPage.insertBefore(importExportHistoryBtn, historyList);
-
-    const historyJsonBlock = document.createElement('div');
-    historyJsonBlock.id = "historyJsonBlock";
-    historyJsonBlock.classList.add('hidden');
-    historyJsonBlock.innerHTML = `
-        <h4>Import/Export Teleport History</h4>
-        <select id="historyJsonMode">
-            <option value="import">Import JSON</option>
-            <option value="export">Export JSON</option>
-        </select>
-        <input type="file" id="historyJsonFileInput" accept="application/json">
-        <button id="processHistoryJson">Execute</button>
-    `;
-    historyPage.appendChild(historyJsonBlock);
-
-    importExportHistoryBtn.addEventListener('click', function () {
-        historyJsonBlock.classList.toggle('hidden');
-    });
-
-    document.getElementById('processHistoryJson').addEventListener('click', async function () {
-        const mode = document.getElementById('historyJsonMode').value;
-        const fileInput = document.getElementById('historyJsonFileInput');
-
-        if (mode === 'import') {
-            if (fileInput.files.length === 0) {
-                alert("Please select a JSON file to import.");
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-            reader.onload = async function (e) {
-                try {
-                    const importData = JSON.parse(e.target.result);
-                    if (typeof importData !== 'object' || importData === null) throw new Error("Invalid JSON format");
-
-                    let currentHistory = await getTeleportHistory();
-                    Object.entries(importData).forEach(([imageLink, chatData]) => {
-                        if (!currentHistory[imageLink]) {
-                            currentHistory[imageLink] = {};
-                        }
-                        Object.entries(chatData).forEach(([chatId, msgNumber]) => {
-                            currentHistory[imageLink][chatId] = msgNumber;
-                        });
-                    });
-
-                    chrome.runtime.sendMessage({ action: "setTeleportHistory", history: currentHistory }, () => {
-                        alert("History Imported Successfully!");
-                        loadHistory();
-                    });
-                } catch (error) {
-                    alert("Invalid JSON format. Ensure it matches the teleport_history structure.");
-                }
-            };
-            reader.readAsText(file);
-        } else if (mode === 'export') {
-            let teleportHistory = await getTeleportHistory();
-
-            const blob = new Blob([JSON.stringify(teleportHistory, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'teleport_history.json';
+            // Создаём временную ссылку для скачивания
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "teleport_history.json";
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-        }
+            URL.revokeObjectURL(url);
+        });
+    }
+
+// Функция импорта истории из JSON-файла
+    function importTeleportHistory(file) {
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            try {
+                const jsonData = JSON.parse(event.target.result);
+                chrome.runtime.sendMessage({action: "setTeleportHistory", data: jsonData}, function (response) {
+                    if (response && response.success) {
+                        alert("Teleport history imported successfully!");
+                    } else {
+                        alert("Import failed. Please check your JSON format.");
+                    }
+                });
+            } catch (e) {
+                alert("Invalid JSON file.");
+            }
+        };
+        reader.readAsText(file);
+    }
+
+// Привязываем события к кнопкам
+    document.getElementById("exportHistoryBtn").addEventListener("click", exportTeleportHistory);
+
+    document.getElementById("importHistoryBtn").addEventListener("click", function () {
+        document.getElementById("importHistoryInput").click();
     });
+
+    document.getElementById("importHistoryInput").addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        importTeleportHistory(file);
+    });
+
 });
