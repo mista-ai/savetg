@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const openBotBtn = document.getElementById('openBot');
     const openBot2Btn = document.getElementById('openBot2');
-    const openFAQBtn = document.getElementById('openFAQ');
-    const openChatsBtn = document.getElementById('openChats');
+    // FAQ button has been removed – its handler is not needed
+    const openChatsBtn = document.getElementById('openChats'); // now this is the "Settings" button
     const addChatBtn = document.getElementById('addChat');
 
     const turnOnBtn = document.getElementById('turnOn');
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const chatTitleInput = document.getElementById('chat_title');
 
     //----------------------------------------------------------------
-    // Load last entered Chat ID on popup open
+    // Load the last entered Chat ID when the popup opens
     chrome.storage.sync.get(['input_chat_id', 'extensionEnabled'], function (data) {
         if (data.input_chat_id) {
             chatIdInput.value = data.input_chat_id;
@@ -24,13 +24,13 @@ document.addEventListener('DOMContentLoaded', function () {
         updateToggleButtons(data.extensionEnabled);
     });
 
-    // Save Chat ID immediately when typing
+    // Save Chat ID on input
     chatIdInput.addEventListener('input', function () {
         chrome.storage.sync.set({'input_chat_id': chatIdInput.value});
     });
 
     //----------------------------------------------------------------
-    // Check if there are saved chats
+    // Check for saved chats
     function checkChats() {
         chrome.storage.sync.get(['bot_dict'], function (data) {
             const bot_dict = data.bot_dict || {};
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     //----------------------------------------------------------------
-    // Add new chat
+    // Adding a new chat
     addChatBtn.addEventListener('click', function () {
         const chat_id = chatIdInput.value.trim();
         const chat_title = chatTitleInput.value.trim();
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.sync.set({'bot_dict': bot_dict}, function () {
                 chatIdInput.value = '';
                 chatTitleInput.value = '';
-                chrome.storage.sync.remove('last_chat_id'); // Clear saved Chat ID after adding
+                chrome.storage.sync.remove('last_chat_id'); // Clear the saved Chat ID
                 checkChats();
             });
         });
@@ -89,27 +89,21 @@ document.addEventListener('DOMContentLoaded', function () {
             turnOnBtn.style.backgroundColor = '#28a745'; // Green
             turnOffBtn.style.backgroundColor = '#ccc';   // Gray
         } else {
-            turnOnBtn.style.backgroundColor = '#ccc';   // Gray
+            turnOnBtn.style.backgroundColor = '#ccc';
             turnOffBtn.style.backgroundColor = '#dc3545'; // Red
         }
     }
 
     //----------------------------------------------------------------
-    // Open Options Page - Chats (Default Page)
+    // Open settings page (Settings) – save defaultTab as "settings"
     openChatsBtn.addEventListener('click', function () {
-        chrome.runtime.openOptionsPage();
-    });
-
-    //----------------------------------------------------------------
-    // Open Options Page - FAQ
-    openFAQBtn.addEventListener('click', function () {
-        chrome.storage.sync.set({'openFAQ': true}, function () {
+        chrome.storage.sync.set({defaultTab: 'settings'}, function () {
             chrome.runtime.openOptionsPage();
         });
     });
 
     //----------------------------------------------------------------
-    // Buttons
+    // Buttons to navigate to the bot
     openBotBtn.addEventListener('click', function () {
         window.open('https://t.me/mista_save_tg_bot', '_blank');
     });
@@ -119,6 +113,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     //----------------------------------------------------------------
-    // Initialize on load
+    // Initialization on load
     checkChats();
 });

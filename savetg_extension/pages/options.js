@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const jsonTextarea = document.getElementById('jsonTextarea');
     const processJson = document.getElementById('processJson');
 
-
     loadChats();
 
     // Load and save button position setting
@@ -144,7 +143,6 @@ document.addEventListener('DOMContentLoaded', function () {
         historyPage.classList.add('hidden'); // hide History
         loadData();
     });
-
 
     // Saving a new chat
     saveChatBtn.addEventListener('click', function () {
