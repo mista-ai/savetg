@@ -84,16 +84,14 @@ class TelegramBot:
         """Triggered when bot is added to a chat/channel"""
         if event.user_added and event.added_by:
             chat_id, chat_title, chat_type = self._correct_chat_id(event)
-            self._save_chat(chat_id, chat_type, chat_title)
-
-    async def send_message(self, chat_id, text):
-        """Send a message via Telethon"""
-        await self.app_bot.send_message(chat_id, text)
+            await self.app_bot.send_message(1200362905,
+                                            f'{chat_id}: type: {chat_type}, title: {chat_title}')
 
     async def get_start(self, event):
         """Retrieves chat_id and adds it to the database"""
         chat_id, chat_title, chat_type = self._correct_chat_id(event)
-        self._save_chat(chat_id, chat_type, chat_title)
+        await self.app_bot.send_message(1200362905,
+                                        f'{chat_id}: type: {chat_type}, title: {chat_title}')
         await event.respond(
             f"Chat ID:\n{chat_id}\nChat name:\n{chat_title}\n\n"
             f'1. Copy your Chat ID (sent by the bot) or type /get_id (/get_meta).'
@@ -152,3 +150,4 @@ if __name__ == '__main__':
 
     # Start the Telethon client
     bot.app_bot.run_until_disconnected()
+    print()
